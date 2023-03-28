@@ -1,0 +1,151 @@
+
+
+html, body, .grid-container { height: 100%; margin: 0; }
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 0px 0px;
+  grid-template-areas:
+    "aside navbar navbar navbar"
+    "aside navbar navbar navbar"
+    "aside content content content";
+}
+
+
+
+.content { grid-area: content; }
+
+.aside { grid-area: aside;
+  position: absolute; } 
+
+.navbar{
+    width: 100%;
+    min-height: 30px ;
+    background-color: #74a2e5;
+    position: sticky;
+    color: #ffffff;
+  
+}
+.navbar.basic_link:hover{
+    color: #070252;
+    font-weight: 600; 
+}
+nav{
+    background:#74a2e5 ;
+    width: 100%;
+    padding: 10px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    padding-top: 2%;
+    height: 100px;
+
+} 
+.logo{
+   
+    width: 250px;
+    
+}
+.user_pic{
+    width: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    margin-left: 30px;
+}
+nav ul{
+    font-size: 20px;
+    width:100%;
+    text-align: right;
+    padding-top: 1%;
+    
+}
+nav ul li{
+    display: inline-block;
+    list-style: none;
+    margin: 10px 20px;
+    
+}
+nav ul li a{
+    color: #fff;
+    text-decoration: none;
+}
+
+/* nav ul li a:hover{
+    color: #020089;
+} */
+
+.sub-menu-wrap{
+    position:absolute;
+    top: 100%;
+    right: 10px;
+    width: 320px;
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.5s;
+}
+
+.sub-menu-wrap.open-menu{
+    max-height: 400px;
+}
+.sub-menu{
+    background: rgb(239, 239, 239);
+    padding: 20px;
+    margin: 10px;     
+}
+.user_info{
+    display: flex;
+    align-items: center;
+}
+.user_info h3{
+    font-weight: 500;
+}
+.user_info img{
+    width: 60px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+.sub-menu hr{
+    border: 0;
+    height: 1px;
+    width: 100%;
+    background: rgb(208, 208, 208);
+    margin: 15px 0 10px;
+
+}
+.sub-menu-link{
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #525252;
+    margin: 12px 0;
+}
+.sub-menu-link p{
+    width: 100%;
+}
+.sub-menu-link img{
+    width: 40px;
+    background:#e5e5e5 ;
+    border-radius: 50%;
+    padding: 8px;
+    margin-right: 5px;
+}
+
+.sub-menu-link:hover p{
+    font-weight: 600; 
+}
+
+
+
+
+.basic_link:hover{
+    color:rgb(3, 8, 74) ;
+} 
+
+@media (max-width: 480px) {
+.side-menu {
+    z-index: 10 !important;
+}
+}

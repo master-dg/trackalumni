@@ -1,0 +1,120 @@
+
+
+{% extends 'base.html' %}
+{% load static startswith %}
+{% block title%}User Profile{% endblock %}
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner py-4">
+        <!-- College Admin Registration -->
+        <div class="card">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center">
+              <a href="index.html" class="app-brand-link gap-2">
+                <span class="app-brand-text demo h3 mb-0 fw-bold">User Profile</p></span>
+              </a>
+            </div>
+            <!-- /Logo -->
+           
+            <p class="mb-4"> </p>
+            <form id="user_profile_form_id" class="mb-3" action="" method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="text" style="opacity:0.5;" required class="form-control" id="email" name="email" placeholder="Enter your Email" autofocus  value="{% if object.email %}{{object.email}}{% endif %}" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" required class="form-control" id="username" name="username" placeholder="Enter your Username" autofocus  value="{% if object.username %}{{object.username}}{% endif %}">
+              </div>
+              <div class="mb-3">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" required class="form-control" id="first_name" name="first_name" placeholder="Enter your First Name" autofocus value="{% if object.first_name %}{{object.first_name}}{% endif %}">
+              </div>
+              <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter your Last Name" autofocus  value="{% if object.last_name %}{{object.last_name}}{% endif %}">
+              </div>
+              <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select id='role' style="opacity:0.5;" name="role" required class="form-control" placeholder="Select Your Role" readonly>
+                  <option value="{{object.role}}" id="role_{{object.role}}" selected>{{object.role}}</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="college_name" class="form-label">College Name</label>
+                <select id='college_name' style="opacity:0.5;"  name="college_name" required class="form-control" readonly>
+                  <option value="{{object.college_name.id}}" id="{{object.college_name.id}}" selected>{{object.college_name}}</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="department" class="form-label">Department</label>
+                <select id='department' name="department" style="opacity:0.5;" required class="form-control" placeholder="Select Your Role" {% if not request.user.is_role_admin%}readonly{% endif %}>
+                    <option value="{{object.department.id}}" id="{{object.department.id}}" selected>{{object.department}}</option>
+                  </select>
+              </div>
+              <div class="mb-3">
+                <label for="designation" class="form-label">Designation</label>
+                <select id='designation'  name="designation" required class="form-control" autofocus>
+                    <option value="" >Select Your Designation</option>
+                    {% for designation in designation_list %}
+                        <option value="{{designation.id}}" {% if object.designation.id == designation.id %}selected{% endif %}>{% if  object.designation.id == designation.id %}{{object.designation.designation}}{% else %}{{designation.designation}}{% endif %}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="phone_no" class="form-label">Phone No</label>
+                <input type="tel" class="form-control" id="phone_no" name="phone_no" placeholder="Enter your Phone No" autofocus  value="{% if object.phone_no %}{{object.phone_no}}{% endif %}">
+              </div>
+              <div>
+                <button type="submit" class="btn btn-primary">Submit</button><span>
+                <a href="{% url 'users_auth:user-list' %}" class="btn btn-primary">Cancel</a></span>
+              </div>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(document).ready(function () {
+            //ajax code for user-profile
+            $("#user_profile_form_id").submit(function (event) {
+                event.preventDefault();
+
+                let csrfmiddlewaretoken = $(this).children().first().val();
+                var formData = new FormData(document.querySelector("#user_profile_form_id"))
+                $.ajax({
+                    type: "POST",
+                    url: `{% url 'user-profile' %}`,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest",
+                        'X-CSRFTOKEN': csrfmiddlewaretoken,
+                    },
+                    success: function (response) {
+                        if (response?.error) {
+                            form_validation("#user_profile_form_id", response.error)
+                        }
+                        else {
+                            window.location=`{% url 'users_auth:user-list' %}`
+                        }
+                    },
+                });
+
+            });
+        });
+
+    </script>
+{% endblock %}

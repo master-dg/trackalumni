@@ -1,0 +1,153 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+<style>
+  .card{
+    margin-left:-30%;
+  }
+</style>
+{% endblock %}
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-xxl">
+  <div class="authentication-wrapper authentication-basic container-p-y">
+    <div class="authentication-inner py-4">
+      <!-- College Admin Registration -->
+      <div class="card">
+        <div class="card-body">
+          <!-- Logo -->
+          <div class="app-brand justify-content-center">
+            <a href="index.html" class="app-brand-link gap-2">
+              <span class="app-brand-text demo h3 mb-0 fw-bold"> Create Database</p></span>
+            </a>
+          </div>
+          <!-- /Logo -->
+
+          <form id="database-create" class="mb-3" action="" method="POST">
+            {% csrf_token %}
+            <div class="mb-3 college-input-error">
+              <label for="college_name" class="form-label">College Name</label>
+              <input type="text" required class="form-control" id="college_name_db_reg" name="college_name" placeholder="Enter your College Name" value="{% if form.college_name.value %}{{form.college_name.value}}{% endif%}" required minlength="10">
+            </div>
+            <input type="checkbox" id="checkbox_choose" name="checkbox_choose"><span>If you have own database then mark the checkbox and fill the below Details of Database<b> (Only Postgres Database)</b></span> 
+            <br>
+            <hr>
+            <div id="field-to-toggle">
+              <div class="mb-3">
+                <label for="db_name" class="form-label">Database Name</label>
+                <input type="text" class="form-control" id="db_name" name="db_name" placeholder="Enter your DataBase Name" autofocus  value="{% if form.db_name.value %}{{form.db_name.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                  <label for="db_user" class="form-label">DataBase UserName</label>
+                  <input type="text"  class="form-control" id="db_user" name="db_user" autocomplete="off" placeholder="Enter your DataBase User Name" autofocus  value="{% if form.db_user.value %}{{form.db_user.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                  <label for="db_password" class="form-label">DataBase Password</label>
+                  <input type="password"  class="form-control" id="db_password" name="db_password" autocomplete="off" placeholder="Enter your DataBase Password" autofocus  value="{% if form.db_password.value %}{{form.db_password.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                  <label for="db_host" class="form-label">DataBase Host</label>
+                  <input type="text"  class="form-control" id="db_host" name="db_host" placeholder="Enter your DataBase Host" autofocus  value="{% if form.db_host.value %}{{form.db_host.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                  <label for="db_port" class="form-label">DataBase Port</label>
+                  <input type="text"  class="form-control" id="db_port" name="db_port" placeholder="Enter your DataBase Port" autofocus  value="{% if form.db_port.value %}{{form.db_port.value}}{% endif%}">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary d-grid w-100" id="create-btn">Create DataBase</button>
+          </form>
+
+          <div class="text-center" style="color:red;">
+              Please colleg name fill the carfully colleg name because after the not changeble...!
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- postgres server down modal -->
+  <div class="modal fade db_create_modal" id="db_create_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="db_create_modalLabel" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header justify-content-center">
+            <h4 id="exampleModalToggleLabel" class="offcanvas-title"></h4>
+            <button type="button" class="btn_close  text-reset" data-bs-dismiss="modal" aria-label="Close">
+                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M25 7L7 25" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M25 25L7 7" stroke="#6B6B6B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>              
+            </button>
+          </div>
+    
+          <div class="modal-body text-center">
+            <p>Please Try Again or Wait, Work in progress. </p>
+          </div>
+    
+          <div class="modal-footer">
+            <button type="button" data-bs-dismiss="modal" class="btn btn-primary" id="db_create_error_btn_id">Okay </button>
+          </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+  
+    
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(document).ready(function() {
+
+            $("#field-to-toggle").hide();
+            $("#checkbox_choose").change(function() {
+              if(this.checked) {
+                  $("#create-btn").text("Connect DataBase");
+                  $("#db_name,#db_user,#db_password,#db_host,#db_port").prop('required',true);
+                  $("#field-to-toggle").show();
+              } else {
+                  $("#create-btn").text("Create DataBase");
+                  $("#db_name,#db_user,#db_password,#db_host,#db_port").prop('required',false);
+                  $("#field-to-toggle").hide();
+              }
+            });
+
+            var form = document.querySelector("#database-create")
+            $("#database-create").submit(function (e){
+              e.preventDefault()
+              let csrfmiddlewaretoken = $(this).children().first().val();
+              var formData = new FormData(form)
+              $.ajax({
+                type: "POST",
+                url: `{% url 'college-registration:college-database-create' %}`,
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {  
+                  'X-CSRFTOKEN': csrfmiddlewaretoken
+                },
+                success: function(response){
+                  console.log("resposne-----", response.error)
+                  if (response?.error) {
+                    form_validation('#database-create', response?.error)
+                  }else if(response?.db_create_error){
+                    $("#db_create_modal").modal("show");
+                  }
+                  else if(response?.college_exist){
+                    $(".college-input-error").append(`<p style="color:red;">This College Name Already Exits</p>`)
+                  } else {
+                    console.log("sucezsss-----")
+                    window.location = "/college-registration/college-dept-desg/"
+                  }
+                },
+              });
+            })
+        });
+    </script>
+{% endblock  %}

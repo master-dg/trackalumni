@@ -1,0 +1,287 @@
+<!--Page To Upload File and Diaplay Data-->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+   <style>
+    div.dataTables_filter {
+        text-align: center;
+        }
+   </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container" style=" margin-left:-3%;">
+    <div class="row">
+        <div class="col-sm-12">
+          <ol class="breadcrumb">
+            {% block breadcrumb %}
+            <li><a href="/">  TrackAlumni > </a></li>
+            <li class="active"> Scheduler</li>
+            {% endblock %}
+          </ol>
+        </div>
+        <div class="col-sm-10">
+          <h2 class="page-title">Scheduler</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %} 
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-block alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                <div class="mb-3" style="width:300px;">
+                    <label for="department_name" class="form-label">Department of Record</label>
+                        <select id='department_name' name="department_name" required class="form-control" style="width=60px;" autofocus>
+                        <option value="" disabled selected hidden>Select Record Department</option>
+                            {% for dept in department_list %}
+                            <option value="{{dept}}">{{dept}}</option>
+                            {% endfor %}
+                        </select>
+
+                    <label for="record_year" class="form-label" style="margin-top: 1.3rem;">Department of Record</label>
+                    <select id='record_year' name="record_year" required class="form-control" autofocus>
+                    <option value="" disabled selected hidden>Select Record Year</option>
+                        {% for year in record_year %}
+                            <option value="{{year}}">{{year}}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="time" class="form-label" style="margin-top: 1.3rem;"> Select Timeperiod to update data</label>
+                    <select id='time' name="time" required class="form-control" autofocus>
+                    <option value="" disabled selected hidden>Select Days</option>
+                        {% for day in days %}
+                            <option value="{{day}}">{{day}} days</option>
+                        {% endfor %}
+                    </select>
+                    <br>
+                    <label for="descriptions" class="form-label">Descriptions</label>
+                    <input name="description" class="form-control" placeholder="Enter the Descriptions"><br><br>
+
+                </div>
+                <button type="submit" class="btn btn-primary">Apply</button>
+            </form>
+            <br>
+            <div id="message" class="alert alert-block alert-success" ></div>
+            <div id="#message-danger" class="alert alert-block alert-danger" hidden></div>
+
+            <div class="card-box" style="margin-top:1.3rem; margin-bottom:5%;">
+                <div class="table-responsive">
+                <hr>
+                <h4><b>Tasks</b></h4>
+                <table class="table table-bordered table-striped" id="tasks_list_table" width="auto" style="font-size:80%;">
+                    <thead>
+                    <tr>
+                        <th>Task Name</th>
+                        <th>Description (Total URls)</th>
+                        <th>Days</th>
+                        <th>Start Time</th>
+                        <th>Last Run At</th>
+                        <th>Total Run Count</th>
+                        <th>Date Changed</th>
+                        <th width="250px">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="{{key}}-body">
+                    {% if tasks_list %} 
+                        {% for task in tasks_list %}
+                        <tr id="task_{{task.name}}" class="task-list-row">
+                        <td>{{task.name}}</td>
+                        <td>{{task.description}}</td>
+                        <td>{{task.interval.every}}</td>
+                        <td>{{task.start_time}}</td>
+                        <td>{{task.last_run_at}}</td>
+                        <td>{{task.total_run_count}}</td>
+                        <td>{{task.date_changed}}</td>
+                        <td class="delete-button">
+                            <div class="button-list">
+                            <a
+                                data-bs-toggle = "modal"
+                                data-bs-target = "#edit_task_modal"
+                                data-id="{{task.id}}"
+                                data-name = "{{task.name}}"
+                                data-time="{{task.interval.every}}"
+                                id="edit_task_id"
+                                class="btn edit-task edit_task_id">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <a
+                                data-bs-toggle = "modal"
+                                data-bs-target = "#delete_task_modal"
+                                data-id="{{task.id}}"
+                                data-name="{{task.name}}"
+                                data-time="{{task.interval.every}}"
+                                id="delete_task_id"
+                                class="btn delete-task">
+                                <i class="fa-regular fa-circle-xmark"></i>
+                                </i>
+                            </a>
+                            <a id="trigger" 
+                                class="btn trigger"
+                                data-id="{{task.id}}"
+                                ><i class="fa-solid fa-play"></i></a>
+                            </div>
+                        </td>
+                        </tr>
+                        {% endfor %} 
+                    {% endif %}
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </div>
+    </div>       
+
+    <!-- delete user modal -->
+    <div class="modal fade delete_task_modal" id="delete_task_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="delete_task_modalLabel" aria-hidden="true">
+        <div class="modal-dialog comman_modal modal-dialog-centered">
+            <div class="modal-content">
+                <form class="mb-3" id="delete_task_form_id" action="" method="POST">
+                {% csrf_token %}
+                <div class="modal-header justify-content-center">
+                    <h4 id="exampleModalToggleLabel" class="offcanvas-title">Delete Scheduler</h4>
+                </div>
+            
+                <div class="modal-body text-center delete-task-modal">
+                    <p>Are you sure you want to delete this task <b><span id="delete-task-name"></span></b> ?</p>
+                </div>
+            
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-primary" value="Delete Schedule" id="delete-task_btn_id">
+                    <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'urlsearch:scheduler' %}" id="cancel_id">Cancel </a>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- edit task modal -->
+    <div class="modal fade edit_task_modal" id="edit_task_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="edit_task_modalLabel" aria-hidden="true">
+        <div class="modal-dialog comman_modal modal-dialog-centered">
+            <div class="modal-content">
+                <form class="mb-3" id="edit_task_form_id" action="" method="POST">
+                {% csrf_token %}
+                <div class="modal-header justify-content-center">
+                    <h4 id="exampleModalToggleLabel" class="offcanvas-title">Update Scheduler</h4>
+                </div>
+            
+                <div class="modal-body text-center edit-task-modal">
+                    <h6 id="shedular_name"></h6>
+                    <input type="text" name="name" id="task_name_id" readonly hidden>
+                    <label for="time" class="form-label" style="margin-top: 1.3rem;"> Select Tiemperiod to update</label>
+                    <select id='task_time_id' name="time" required class="form-control" autofocus>
+                    <option value="" disabled selected hidden>Select Days</option>
+                        {% for day in days %}
+                            <option value="{{day}}">{{day}} days</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-primary" value="Edit Schedule" id="edit_task_btn_id">
+                    <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'urlsearch:scheduler' %}" id="cancel_id">Cancel </a>
+                </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+
+        $(document).ready(function () {
+            $('#tasks_list_table').DataTable(); 
+
+            $(".task-list-row").on("click", "a","#delete_task_id", function(){
+                console.log("user")
+                task_id = $(this).attr("data-id")
+                task_name = $(this).attr("data-name")
+                task_time = $(this).attr("data-time")
+                console.log(task_name, task_time)
+          
+                $("#delete_task_modal #delete-task-name").html(`${task_name}` + `( Every ${task_time} Days)`)
+                $('#delete_task_modal #delete_task_form_id').attr('action', `/urlsearch/set-scheduler/delete-task/${task_id}/`)
+          
+            })
+
+            $(".task-list-row").on("click", "a", "#edit_task_id",  function(){
+                console.log("edit task")
+                task_id = $(this).attr("data-id")
+                task_name = $(this).attr("data-name")
+                task_time = $(this).attr("data-time")
+                console.log(task_name,task_time, "===0")
+          
+                $("#edit_task_modal #shedular_name").html(`${task_name}`)
+                $("#edit_task_modal #task_name_id").val(`${task_name}`)
+                $(`#edit_task_modal #task_time_id option[value=${task_time}]`).prop("selected", true).trigger("change", "change");
+                $('#edit_task_modal #edit_task_form_id').attr('action', `/urlsearch/set-scheduler/edit-task/${task_id}/`)
+          
+            })
+            
+            //delete user
+
+            $(".trigger").on("click",function(){
+                console.log("trigger task")
+                task_id = $(this).attr("data-id")
+                console.log(task_id, "===0")
+                
+                $.ajax({
+                    type: "GET",
+                    url: `trigger-task/${task_id}/`,
+                    processData: false,
+                    contentType: false,
+                    success: function(response){
+                      if (response?.success) {
+                        $("#message").text("Successfully Called Task");
+                        $("#message").show();
+                        console.log("Success");
+                      
+                      }
+                      else{
+                        $("#message-danger").text("Failed to call Task");
+                        $("message-danger").show();
+                        console.log("Failed");
+                      }
+                    },
+                  });
+
+            })
+            $("#edit_task_form_id").submit(function(){
+                event.preventDefault()
+                let csrfmiddlewaretoken = $(this).children().first().val();
+                let edit_task_url = $(this).attr('action');
+                formData = new FormData(document.querySelector("#edit_task_form_id"))
+                console.log(formData.get("name"), formData.get("time"), edit_task_url)
+                $.ajax({
+                    type: "POST",
+                    url: `${edit_task_url}`,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                    'X-CSRFTOKEN': csrfmiddlewaretoken
+                    },
+                    success: function(response){
+                    if (response?.error) {
+                        form_validation('#edit_task_form_id', response?.error)
+                    } else {
+                        window.location = "/urlsearch/set-scheduler/"
+                    }
+                    },
+                });
+            });
+
+        });
+    </script>
+
+{% endblock %}

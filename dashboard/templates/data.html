@@ -1,0 +1,396 @@
+
+ 
+
+{% extends 'base.html' %}
+<!--Page To Upload File and Diaplay Data-->
+{% load static startswith dashboard%}
+
+{% block extra_css %}
+<style> 
+    table.dataTable td, table.dataTable th {
+        -webkit-box-sizing: content-box;
+        -moz-box-sizing: content-box;
+        box-sizing: content-box;
+        padding: 3px;
+    }
+    table th, td{
+        padding: 1px;
+    }
+    .content {
+        margin-right:10px;
+        margin-left:-33px;
+        margin-top:0%;
+        
+    }
+    #student_info_list_table{
+        width:auto;    
+    }
+    .container {
+        width: auto;    
+        height: auto;
+    }
+    div.dataTables_filter {
+        text-align: center;
+        }
+    div.dataTables_filter {
+            text-align: center;
+            } 
+    #student_info_list_table_wrapper > .row:first-child > .col-sm-10 {
+        display: -webkit-inline-box;
+    } 
+
+    label {
+        display: contents;
+    } 
+    #myfield{
+        display: inline-flex;
+    }
+
+    .col-sm-2 {
+        margin:0.5%;
+    }
+
+    #student_data{
+        margin-bottom:20%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12" style="display:inline;">
+            <form method='GET' class="" action="{% url 'dashboard:basic-info-list' %}"> 
+                <div id="myfield"  >
+                    <div class="col-sm-2">
+                        <label>Rocord Date:</label>
+                        <div class="input-daterange " id="date-range" style="display:inline;">
+                                <span class="input-group-addon bg-custom b-0 text-white">From</span>
+                                <input type="date" class="form-control" name="fromdate" width="100%;"
+                                    onchange="this.form.submit()" value="{{ request.GET.fromdate }}" />
+                                <span class="input-group-addon bg-custom b-0 text-white">To</span>
+                                <input type="date" class="form-control" name="todate"
+                                    onchange="this.form.submit()" value="{{ request.GET.todate }}" />  
+                        </div>
+                    </div>     
+                    <div class="col-sm-2">
+                        <label>Field Search:</label>
+                        <select name="field_name" id="field_name" class="form-control"
+                            onchange="this.form.submit()"multiple>
+                            <option value="" disabled selected hidden>Select Field</option>
+                            {% for field in fields %}
+                                {% dropdown_option field field sel_field_name %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>College Search:</label>
+                        <select name="college_name" id="college_filter" class="form-control"
+                            onchange="this.form.submit()"multiple>
+                            <option value="" disabled selected hidden>Select College</option>
+                            {% for college in college_list %}
+                            {% dropdown_option college college sel_college %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Company Search:</label>
+                        <select name="company_name" id="company_filter" class="form-control"
+                            onchange="this.form.submit()"multiple>
+                            <option value="" disabled selected hidden>Select Company</option>
+                            {% for company in company_list %}
+                            {% dropdown_option company company sel_company %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Country Search:</label>
+                        <select name="country" id="country_filter" class="form-control"
+                            onchange="this.form.submit()"multiple>
+                            <option value="" disabled selected hidden>Select Country</option>
+                            {% for country in country_list %}
+                            {% dropdown_option country country sel_country %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Skills Search:</label>
+                        <select name="skills" id="skill_filter" class="form-control no-select2"
+                            onchange="this.form.submit()" multiple>
+                            <option value="" disabled selected hidden>Select Skills</option>
+                            {% for skill in skill_list %}
+                            {% dropdown_option skill skill sel_skills %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Years Search:</label>
+                        <select name="years" id="year_filter" class="form-control"
+                            onchange="this.form.submit()" multiple>
+                            <option value="" disabled selected hidden>Select Years</option>
+                            {% for year in batch_years %}
+                            {% dropdown_option year year sel_years %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div> 
+                <br>
+                <br>
+                <div class="">
+                    <a href="{% url 'dashboard:basic-info-list' %}"
+                    class="btn btn-primary " style="width:10.5%;">Clear Filters</a>
+                </div>
+            </form>
+            <hr>
+            <br>
+            <div style="display-inline:flex;">
+                <button id="export-button" class="btn btn-info">Export to Excel</button>
+                {% if request.user.is_role_superuser %}
+                    <button id="bulk-delete-button" class="btn btn-info">Bulk Delete Students</button>
+                    <button id="add-scheduler-button" class="btn btn-info" data-bs-toggle="modal" data-bs-target = "#add_scheduler_modal" >Add Scheduler</button>
+                {% endif %}
+            </div>
+            <br>
+            {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-block alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+			        {% endif %}
+        </div>
+    </div>
+    <div class="row download">
+        {% include 'filter_data.html' with object_list=object_list  %}
+    </div>
+</div>
+
+<!-- edit student modal -->
+<div class="modal fade edit_student_modal" id="edit_student_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="edit_student_modalLabel" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+        <div class="modal-content">
+            <form class="mb-3" id="edit_student_form_id" action="" method="POST">
+                {% csrf_token %}
+                <div class="modal-header justify-content-center">
+                    <h4 id="exampleModalToggleLabel" class="offcanvas-title">Update Student Detail</h4>
+                </div>
+            
+                <div class="modal-body text-center edit-student-modal">
+                    <b><h4 id="PublicId"></h4></b>
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department</label>
+                        <input type="text" required class="form-control" id="department" name="department" placeholder="Enter Department" autofocus  value="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="college_id" class="form-label">College Id</label>
+                        <input type="text" required class="form-control" id="college_id" name="college_id" placeholder="Enter College Id" autofocus value="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="batch_year" class="form-label">Batch Year</label>
+                        <input type="text" class="form-control" id="batch_year" name="batch_year" placeholder="Enter Batch Year" autofocus  value="">
+                    </div>
+                </div>
+            
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-primary" value="Update Detail" id="edit_student_btn_id">
+                    <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'dashboard:basic-info-list' %}" id="cancel_id">Cancel </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- delete student modal -->
+<div class="modal fade delete_student_modal" id="delete_student_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="delete_student_modalLabel" aria-hidden="true">
+    <div class="modal-dialog comman_modal modal-dialog-centered">
+        <div class="modal-content">
+            <form class="mb-3" id="delete_student_form_id" action="" method="POST">
+            {% csrf_token %}
+            <div class="modal-header justify-content-center">
+                <h4 id="exampleModalToggleLabel" class="offcanvas-title">Delete Student</h4>
+            </div>
+        
+            <div class="modal-body text-center delete-student-modal">
+                <p>Are you sure you want to delete this student <b><span id="delete-student-publicid"></span></b> ?</p>
+            </div>
+        
+            <div class="modal-footer">
+                <input type="submit" class="btn btn-primary" value="Delete Student" id="delete-student_btn_id">
+                <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'dashboard:basic-info-list' %}" id="cancel_id">Cancel </a>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Add scheduler model-->
+<div class="modal fade add_scheduler_modal" id="add_scheduler_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="add_scheduler_modalLabel" aria-hidden="true">
+    <div class="modal-dialog  comman_modal modal-dialog-centered">
+        <div class="modal-content">
+            <form class="" id="add_scheduler_form_id" action="" method="POST">
+                {% csrf_token %}
+                <div class="modal-header justify-content-center">
+                    <h4 id="exampleModalToggleLabel" class="offcanvas-title">Add Scheduler</h4>
+                </div>
+            
+                <div class="modal-body text-center add-scheduler-modal">
+                    <div class="mb-3">
+                        <label for="task_name" class="form-label">Task Name (Group Name)</label>
+                        <input type="text" required class="form-control" id="task_name" name="task_name" placeholder="Enter Task Name e.g: Task Name" autofocus value="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="time" class="form-label" style="margin-top: 1.3rem;"> Select Timeperiod to update</label>
+                        <select id='task_time_id' name="day" required class="form-control" autofocus>
+                            <option value="" disabled selected hidden>Select Days</option>
+                            {% for day in days %}
+                            <option value="{{day}}">{{day}} days</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <input type="text" class="form-control" id="description" name="description" placeholder="Enter Description" autofocus  value="">
+                    </div>
+                </div>
+
+            
+                <div class="modal-footer">
+                    <input type="submit" class="btn btn-primary" value="Add Scheduler" id="add_scheduler_btn_id">
+                    <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'dashboard:basic-info-list' %}" id="cancel_id">Cancel </a>
+                </div>
+            </form> 
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        $('#student_info_list_table').DataTable({
+            scrollX: true,
+            "aoColumns": [
+            { sWidth: '1%' },
+            { sWidth: '7%' },
+            { sWidth: '6%' },
+            { sWidth: '5%' },
+            { sWidth: '3%' },
+            { sWidth: '8%' },
+            { sWidth: '3%' },
+            { sWidth: '20%' },
+            { sWidth: '19%' },
+            { sWidth: '12%' },
+            { sWidth: '5%' },
+            { sWidth: '5%' },
+            { sWidth: '6%' } ]
+            
+        });   
+
+        $('.basic-info-list').on('click', "a", "#edit_student_id", function(){
+            student_PublicId = $(this).attr("data-PublicId")
+            student_department = $(this).attr("data-department")
+            student_college_id = $(this).attr("data-collegeid")
+            student_batch_year = $(this).attr("data-batchyear")
+      
+            $("#edit_student_modal #PublicId").html(`Student: ${student_PublicId}`)
+            $("#edit_student_modal #department").val(`${student_department}`)
+            $("#edit_student_modal #college_id").val(`${student_college_id}`)
+            $("#edit_student_modal #batch_year").val(`${student_batch_year}`)
+
+            $('#edit_student_modal #edit_student_form_id').attr('action', `/dashboard/student-records/update-student/${student_PublicId}/`)
+      
+        });
+
+        $('.basic-info-list').on('click', "a", "#delete_student_id",function(){
+            student_PublicId = $(this).attr("data-PublicId")
+            student_department = $(this).attr("data-department")
+            student_college_id = $(this).attr("data-collegeid")
+            student_batch_year = $(this).attr("data-batchyear")
+      
+            $("#delete_student_modal #delete-student-publicid").html(`${student_PublicId} (${student_department}) (${student_college_id}) (${student_batch_year}) `)
+            $('#delete_student_modal #delete_student_form_id').attr('action', `/dashboard/student-records/delete-student/${student_PublicId}/`)
+      
+        });
+        
+    });
+
+    function studentcheckedAll(bx) {
+        var admin_cbs = document.getElementsByClassName('student-checked-all');
+        for (var i = 0; i < admin_cbs.length; i++) {
+            if (admin_cbs[i].type == 'checkbox') {
+              admin_cbs[i].checked = bx.checked;
+            }
+        }
+    }
+
+    $(document).ready(function () {
+        var $submit = $("#bulk-delete-button").hide();
+        var $scheduler = $("#add-scheduler-button").hide();
+            $cbs = $('input[name="checked"], input[name="check"]').click(function () {
+                $submit.toggle($cbs.is(":checked"));
+                $scheduler.toggle($cbs.is(":checked"));
+            });
+    });
+  
+    $(document).ready(function () {
+        
+        $("#bulk-delete-button").click(function () {
+            var batch = [];
+            $.each($("input[name='check']:checked"), function () {
+                batch.push($(this).val());
+            });
+            // Generate URL without "id" bit
+            var url = `{% url 'dashboard:bulk-delete-student' %}`;
+            url = url + "?batch=" + batch
+            // Construct the full URL with "id"
+            document.location.href = url
+        });
+        $("#add_scheduler_btn_id").click(function () {
+            var schedule_batch = [];
+            $.each($("input[name='check']:checked"), function () {
+                schedule_batch.push($(this).val());
+            });
+            // Generate URL without "id" bit
+            var url = `{% url 'dashboard:add-scheduler-student' %}`;
+            url = url + "?batch=" + schedule_batch
+            // Construct the full URL with "id"
+            $("#add_scheduler_form_id").attr('action', `${url}`)
+            
+        });
+    });
+
+</script>
+
+<!-- Add the following script tag to include SheetJS library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+
+<script>
+function exportTableToExcel(filename) {
+  // Get the table element
+  var table = document.getElementById("student_info_list_table");
+
+  // Convert the table data to a worksheet object
+  var worksheet = XLSX.utils.table_to_sheet(table);
+
+  // Create a new workbook object
+  var workbook = XLSX.utils.book_new();
+
+  // Add the worksheet to the workbook
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Student Information");
+
+  // Save the workbook as an xlsx file
+  XLSX.writeFile(workbook, filename + ".xlsx");
+}
+
+// Call the exportTableToExcel function when a button is clicked
+document.getElementById("export-button").addEventListener("click", function(){
+  exportTableToExcel("Student Information");
+});
+</script>
+
+<!-- Add a button to trigger the export -->
+
+
+{% endblock %}

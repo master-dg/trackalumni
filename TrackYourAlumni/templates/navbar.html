@@ -1,0 +1,61 @@
+{% load static %}
+
+
+
+
+<div class="navbar">
+    <nav>
+        <img src="{% static 'assets/image/logo.png'  %}" class="logo">
+        <ul>
+
+            {% if request.user.is_role_admin %}
+                <li><a class="basic_link" href="{% url 'users_auth:user-list' %}">Home</a></li>
+
+            {% elif request.user.is_role_superuser or request.user.is_role_user %}
+                <li><a class="basic_link" href="{% url 'dashboard:basic-info-list' %}">Home</a></li>
+            {% else %}
+            <li><a class="basic_link" href="{% url 'welcome-trackalumni' %}">Home</a></li>
+            {% endif %}
+
+
+
+            <li><a class="basic_link" href="{% url 'about' %}">About</a></li>
+            <li><a class="basic_link" href="{% url 'contact' %}">Contact</a></li>
+            {% if not request.user.email %}
+            <li style="margin-right: -0.5%; margin-left: -0.5%;"><button type="button" class="btn btn-link " style="background-color:white; border-radius: 10px;"><a style="color:#74a2e5" href="{% url 'college-registration:college-admin-reg' %}">Register</a></button></li>
+            <li style="margin-right: -0.5%;"><button type="button" class="btn btn-link" style="background-color:white; border-radius: 10px;"><a style="color:#74a2e5" href="{% url 'users_auth:add-user' %}">Sign Up</a></button></li>
+            <li style="margin-right: -5%;"><button type="button" class="btn btn-link" style="background-color: white;border-radius: 10px;"><a style="color:#74a2e5; " href="{% url 'login' %}">Login</a></button><li>
+            {% endif %}
+        </ul>
+        {% if request.user.email %}
+            <img src="{% static 'assets/image/user1.png'  %}" alt="profile_photo" class="user_pic" onclick="toggleMenu()">
+            
+            <div class="sub-menu-wrap" id="subMenu">
+                <div class="sub-menu">
+                    <div class="user_info">
+                        <img src="{% static 'assets/image/user1.png'  %}" >
+                        <h3 style="font-size: medium;">{{ user.email }}</h3>
+                    </div>
+                    <hr>    
+                    <a href="{% url 'user-profile' %}" class="sub-menu-link">
+                        <img src="{% static 'assets/image/profile.png'%}">
+                        <p>Edit Profile</p>
+
+                    </a>
+                    <a href="{% url 'user-change-password' %}" class="sub-menu-link">
+                        <img src="{% static 'assets/image/pass.png'%}">
+                        <p>Change Password</p>
+                        
+                    </a>
+                    <a href="{% url 'logout' %}" class="sub-menu-link">
+                        <img src="{% static 'assets/image/logout.png'%}">
+                        <p>Logout</p>
+                        
+                    </a>
+                    
+                </div>
+            </div>  
+
+        {% endif %}   
+    </nav>
+</div>

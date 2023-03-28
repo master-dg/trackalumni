@@ -1,0 +1,106 @@
+{% load static startswith dashboard%}
+
+<div id="student_data">
+  <br><br>
+  <h4><b>Student Information</b></h4>
+  <table class="table table-bordered table-striped" id="student_info_list_table" width="2200px" style="font-size:90%;overflow: scroll;">
+      <thead>
+      <tr>
+            <th scope="col" class="action-checkbox-column" style="width:0px;">
+            <div class="text">
+                <span>
+                    <input type="checkbox" id="action-toggle" name="checked" class="student checked-all"
+                        onclick='studentcheckedAll(this)'>
+                </span>
+            </div>
+            </th>
+            <th>Public Id</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Country</th>
+            <th>Field</th>
+            <th>Batch Year</th>
+            <th >Education Details</th>
+            <th>Company Details</th>
+            <th >Skills</th>
+            <th>Created at</th>
+            <th>Updated at</th>
+            <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody class="student_info">
+          {% if object_list %}  
+              {% for student in object_list %}
+                  <tr id="{{student.PublicId}}" class="basic-info-list">
+                    <td scope="col" class="action-checkbox-column" >
+                        <div class="text">
+                            <span>
+                                <input type="checkbox" id="action-toggle" name="check" class="student-checked-all"
+                                    value="{{student.PublicId}}">
+                            </span>
+                        </div> 
+                    </td>
+                    <td>{{student.PublicId}}</td>
+                    <td>{{student.FirstName}} {{student.LastName}}</td>
+                    <td>{{student.Address}}</td>
+                    <td>{{student.Country}}</td>
+                    <td>{{student.Field}}({{student.department}})</td>
+                    <td>{{student.batch_year}}</td>
+                    <td>
+                        {% for education  in student.student_college_details.all%}
+                            {{education|display_dict }}
+                            <br>
+                            <br>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for company in student.student_company_details.all %}
+                            {{company|display_dict_company}}
+                            <br>
+                            <br>
+                        {% endfor %}
+                        <br>
+                        <br>
+                    </td>
+                    <td>
+                        {% for skill in student.student_skills.all %}
+                            {{skill.SkillName}} ,
+                        {% endfor %}
+                        <br>
+                        <br>
+                    </td>
+                    <td>{{student.created_at}}</td>
+                    <td>{{student.updated_at}}</td>
+                    <td class="delete-button">
+                        <div class="button-list">
+                        <a
+                            data-bs-toggle = "modal"
+                            data-bs-target = "#edit_student_modal"
+                            data-PublicId="{{student.PublicId}}"
+                            data-department="{{student.department}}"
+                            data-collegeid="{{student.college_id}}"
+                            data-batchyear="{{student.batch_year}}"
+                            id="edit_student_id"
+                            class="btn edit-student">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </a>
+                        <a
+                            data-bs-toggle = "modal"
+                            data-bs-target = "#delete_student_modal"
+                            data-PublicId="{{student.PublicId}}"
+                            data-department="{{student.department}}"
+                            data-collegeid="{{student.college_id}}"
+                            data-batchyear="{{student.batch_year}}"
+                            id="delete_student_id"
+                            class="btn delete-student">
+                            <i class="fa-regular fa-circle-xmark"></i>
+                            </i>
+                        </a>
+                        </div>
+                    </td>
+                  </tr>
+              {% endfor %} 
+          {% endif %}
+      </tbody>
+  </table>
+</div>

@@ -1,0 +1,116 @@
+<!--Page To Upload File and Diaplay Data-->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <style>
+        table {
+                font-size:20px;
+                margin: 0 auto  ;
+                border-collapse: collapse;
+                border-style: hidden;
+            }
+        table th, td{
+            padding: 0.5rem;
+        }
+        .content {
+            margin-top: 10%;
+            padding: 10px;
+            padding-right: 150px;
+            display:flex;
+        }
+        .container {
+            width: auto;    
+            height: auto;
+            padding: 1%;
+        }
+        div.dataTables_filter {
+            text-align: center;
+            }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-sm-12">
+          <ol class="breadcrumb">
+            {% block breadcrumb %}
+            <li><a href="/">  TrackAlumni > </a></li>
+            <li class="active">Upload</li>
+            {% endblock %}
+          </ol>
+        </div>
+        <div >
+            <h2 >Upload XLSX File With URL Records(Please Enter Each Record Enter in new Line/Row respectively)</h2> 
+        </div>
+      </div>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %} 
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-block alert-{% if message.tags == 'error' %}danger{% else %}success{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+			{% endif %}
+            <p style="color:red;">Please Download Sample File for XLSX</p>
+            <p><button class="btn btn-primary"><a style="color:#FFFFFF" href="{% static 'assets/Profile Urls.xlsx' %}" download>Download</a></button></p>
+
+            <hr>
+            <h2>Fill the details related to records</h2>
+            <div class="mb-3" style="width:300px;">
+                <label for="Task_Name" class="form-label" style="margin-top: 1rem;">Task Name( Please enter the usefull task name)</label>
+                <input name="task_name" class="form-control" placeholder="Enter the Task Name"><br><br>
+
+                <label for="file" class="file" style="margin-top: 1rem;">Choose file</label>
+                <input type="file" class="form-control" name='profile_url_file' ><br><br> 
+                <button type="submit" class="btn btn-primary">Upload</button>
+            </div>
+            
+        </form>
+        <br>
+            <div class="table-responsive">
+                <hr>
+                <h4><b>Tasks</b></h4>
+                <table class="table table-bordered table-striped" id="tasks_list_table" width="auto" style="font-size:78%;">
+                    <thead>
+                    <tr>
+                        
+                        <th>Task_Name</th>
+                        <th>Start Time</th>
+                        <th>Done Time</th>
+                        <th>Status</th>
+                        <th>Result</th>
+                        <th>Created By</th>
+                        <th>File</th>
+                    </tr>
+                    </thead>
+                    <tbody class="{{key}}-body">
+                        {% for key, info in tasks.items %}
+                        <tr id="task_{{info.task_info.task}}" class="task-list-row">
+                        <td>{{info.task_info.task_name}}</td>
+                        <td>{{info.task_result.date_created}}</td>
+                        <td>{{info.task_result.date_done}}</td>
+                        <td>{{info.task_result.status}}</td>
+                        <td>{{info.result}}</td>
+                        <td>{{info.task_info.user.email}}</td>
+                        <td>{{info.task_info.file}}</td>
+                        </tr>
+                        {% endfor %} 
+                    </tbody>
+                </table>
+            </div>      
+            </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        $('#tasks_list_table').DataTable(); 
+    });
+</script>
+{% endblock %}

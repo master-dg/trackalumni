@@ -1,0 +1,72 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% load crispy_forms_tags %}
+
+{% block sidebar %}
+{% endblock %}
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner py-4">
+        <!-- College Admin Registration -->
+        <div class="card" style="width:500px; margin-left:-30%;margin-top:-20%;">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center">
+              <a href="" class="app-brand-link gap-2">
+                <span class="app-brand-text demo h3 mb-0 fw-bold">Sign In</p></span>
+              </a>
+            </div>
+            <!-- /Logo -->
+            <div  style="color:red;">
+              <p>{{form.non_field_errors}}</p>
+            </div>
+            <form id="formAuthentication" class="mb-3" action="{% url 'login' %}" method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="text" class="form-control" id="email" name="username" placeholder="Enter your Email" autofocus  value="{% if from.username.value%}{{username.value}}{% endif %}">
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control password" id="password" name="password" placeholder="Enter your Password" autofocus  value="{% if form.password.value %}{{password.value}}{% endif %}">
+              </div>
+              <div class="mb-3">
+                <label for="college_name" class="form-label">College Name</label>
+                <select id='college_id' name="college_name" required class="form-control" autofocus>
+                  <option value="" hidden >Select College</option>
+                    {% for college in college_list %}
+                    <option value="{{college.id}}" id="{{college.college_name}}">{{college.college_name}}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              {% if messages %}
+                <div style="color:red;" class="mb-3">
+                  {% for message in messages %}
+                  {{message}}
+                  {% endfor %}
+                </div>
+              {% endif %}
+              <input id="login_id" type="submit" class="btn btn-primary d-grid w-100" value="Sign In">
+            </form>
+            <div class="text">
+              <a href="{% url 'college-registration:college-admin-reg' %}">
+                Register Here
+              </a>
+              <span style="margin-left:50%;">
+                <a href="{% url 'password-reset' %}">
+                  Forgot password?
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}

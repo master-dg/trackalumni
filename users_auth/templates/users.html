@@ -1,0 +1,251 @@
+{% extends 'base.html' %} {% block extra_css %}
+<style>
+  .content {
+    margin-top: 115px;
+    padding: 10px;
+    display: flex;
+  }
+  .container {
+    width: auto;
+    margin-top:-6.5%;
+  }
+  .container-alt {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .breadcrumb {
+    background-color: transparent;
+    margin-bottom: 15px;
+    padding-top: 10px;
+    padding-left: 0px;
+  }
+  .card-box {
+    padding: 20px;
+    border: 1px solid rgba(54, 64, 74, 0.05);
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    background-clip: padding-box;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+  }
+  .content {
+    margin-bottom: 60px;
+    margin-top: 60px;
+    padding: 20px 5px 15px 5px;
+    margin-left:-17 %;
+  }
+
+  div.dataTables_filter {
+    text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <ol class="breadcrumb">
+        {% block breadcrumb %}
+        <li><a href="/">  TrackAlumni > </a></li>
+        <li class="active"> Users</li>
+        {% endblock %}
+      </ol>
+    </div>
+  </div>
+  <div class="row" style="margin-bottom:5%;" >
+    <div class="col-lg-4 col-sm-6">
+        <div class="widget-panel widget-style-2 bg-white">
+            <h2 class="m-0 text-dark counter font-600">{{admin_count }}</h2>
+            <div class="text-muted m-t-5">Admin</div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6">
+        <div class="widget-panel widget-style-2 bg-white">
+            <h2 class="m-0 text-dark counter font-600">
+                {{superuser_count}}</h2>
+            <div class="text-muted m-t-5">SuperUser</div>
+        </div>
+    </div>
+    <div class="col-lg-4 col-sm-6">
+        <div class="widget-panel widget-style-2 bg-white">
+            <h2 class="m-0 text-dark counter font-600">{{user_count }}</h2>
+            <div class="text-muted m-t-5">User</div>
+        </div>
+    </div>
+</div>
+  <div class="col-sm-10">
+    <h2 class="page-title">Users</h2>
+  </div>
+  <hr>
+
+  <div class="row">
+    <div class="col-lg-12">
+      {% for queryset in object_list %} 
+        {% for key,user_list in queryset.items%}
+          <h4><b>{{key|title}}</b></h4>
+          <div class="card-box">
+            <div class="table-responsive">
+              <table class="table table-bordered table-striped" id="{{key}}_list_table" width="auto">
+                <thead>
+                  <tr>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>Phone No</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Verified By</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="{{key}}-body">
+                  {% if user_list %} 
+                    {% for user in user_list %}
+                    <tr id="{{key}}_{{user.id}}" class="{{key}}-list-row">
+                      <td>
+                        {{user.username}} - {{user.first_name}} {{user.last_name}}
+                      </td>
+                      <td>{{user.email}}</td>
+                      <td>{{user.phone_no}}</td>
+                      <td>{{user.department.department_name}}</td>
+                      <td>{{user.designation.designation}}</td>
+                      <td>{{user.verified_by}}</td>
+                      <td class="delete-button">
+                        <div class="button-list">
+                          <a
+                            data-bs-toggle = "modal"
+                            data-bs-target = "#delete_user_modal"
+                            data-id="{{user.id}}"
+                            data-role="{{user.role}}"
+                            data-name = "{{user.username}} {{user.email}}"
+                            id="delete_user_id"
+                            class="btn delete-user">
+                            <i class="fa-regular fa-circle-xmark"></i>
+                            </i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %} 
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <!-- end col -->
+  </div>
+</div>
+
+<!-- delete user modal -->
+<div class="modal fade delete_user_modal" id="delete_user_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="delete_user_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    <div class="modal-content">
+      <form class="mb-3" id="delete_user_form_id" action="" method="POST">
+        {% csrf_token %}
+        <div class="modal-header justify-content-center">
+          <h4 id="exampleModalToggleLabel" class="offcanvas-title">Unverify User</h4>
+        </div>
+  
+        <div class="modal-body text-center delete-user-modal">
+          <p>Are you sure you want to unverify this user <b><span id="delete-user-name-role"></span></b> ?</p>
+        </div>
+  
+        <div class="modal-footer">
+          <input type="submit" class="btn btn-primary" value="Unverify User" id="delete-user_btn_id">
+          <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'users_auth:user-list' %}" id="cancel_id">Cancel </a>
+        </div>
+      </form>
+  </div>
+  
+  </div>
+</div>
+
+{% endblock %} 
+
+
+{% block extra_js %} 
+<script>
+  $(document).ready(function () {
+   $('#admin_list_table').DataTable({
+      scrollX: false,
+    }); 
+   $('#superuser_list_table').DataTable({
+      scrollx: false,
+    }); 
+   $('#user_list_table').DataTable({
+      scrollx: false,
+    }); 
+    
+    $('.admin-list-row').on('click', "a", "#delete_user_id",function(){
+      user_name= $(this).attr("data-name")
+      user_id = $(this).attr("data-id")
+      user_role = $(this).attr("data-role")
+      console.log(user_id, user_role, user_name)
+
+      $("#delete_user_modal #delete-user-name-role").html(`${user_name}` + `(${user_role})`)
+      $('#delete_user_modal #delete_user_form_id').attr('action', `/users_auth/users/unverify-user/${parseInt(user_id)}/`)
+
+    })
+
+    $('.superuser-list-row').on('click', "a", "#delete_user_id",function(){
+      console.log("SuperUser")
+      user_name= $(this).attr("data-name")
+      user_id = $(this).attr("data-id")
+      user_role = $(this).attr("data-role")
+      console.log(user_id, user_role, user_name)
+
+      $("#delete_user_modal #delete-user-name-role").html(`${user_name}` + `(${user_role})`)
+      $('#delete_user_modal #delete_user_form_id').attr('action', `/users_auth/users/unverify-user/${parseInt(user_id)}/`)
+
+    })
+    
+    $('.user-list-row').on('click', "a", "#delete_user_id", function(){
+      console.log("user")
+      user_name= $(this).attr("data-name")
+      user_id = $(this).attr("data-id")
+      user_role = $(this).attr("data-role")
+      console.log(user_id, user_role, user_name)
+
+      $("#delete_user_modal #delete-user-name-role").html(`${user_name}` + `(${user_role})`)
+      $('#delete_user_modal #delete_user_form_id').attr('action', `/users_auth/users/unverify-user/${parseInt(user_id)}/`)
+
+    })
+      
+    //delete user
+    $("#delete_user_form_id").submit(function(){
+      event.preventDefault()
+      let csrfmiddlewaretoken = $(this).children().first().val();
+      let user_delete_url = $(this).attr('action');
+      parts = user_delete_url.split("/"),
+      user_id = parts[parts.length-2];
+      
+      $.ajax({
+        type: "POST",
+        url: `${user_delete_url}`,
+        data: {"id" : user_id },
+        processData: false,
+        contentType: false,
+        headers: {
+          'X-CSRFTOKEN': csrfmiddlewaretoken
+        },
+        success: function(response){
+          if (response?.error) {
+            form_validation('#delete_user_form_id', response?.error)
+          } else {
+            window.location = "/users_auth/users/"
+          }
+        },
+      });
+    });
+
+});
+</script> 
+{% endblock %}

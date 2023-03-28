@@ -1,0 +1,1447 @@
+{% extends 'base.html' %}
+{% load static startswith dashboard %}
+
+{% block title %}Analytics{% endblock %}
+
+{% block extra_css %}
+<style>
+    label {
+        display: contents;
+    } 
+    #analytics_field{
+        display: inline-flex;
+    }
+
+    .col-sm-2 {
+        margin:0.5%;
+    }
+    #data-count{
+        margin-bottom:8%; ;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+
+    <!-- Page-Title -->
+    <div class="row">
+        <div class="col-sm-4">
+            <h4 class="page-title">Analytics </h4>
+            <p class="text-muted page-title-alt"></p>
+        </div>
+    </div>
+    <div class="row" id="data-count" >
+        <div class="col-lg-4 col-sm-6">
+            <div class="widget-panel widget-style-2 bg-white">
+                <i class="fa-solid fa-apartment"></i>
+                <h2 class="m-0 text-dark counter font-600">{{ fields.count }}</h2>
+                <div class="text-muted m-t-5">Total Departments</div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-6">
+            <div class="widget-panel widget-style-2 bg-white">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h2 class="m-0 text-dark counter font-600">
+                    {{students_count}}</h2>
+                <div class="text-muted m-t-5">Total Students</div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-6">
+            <div class="widget-panel widget-style-2 bg-white">
+                <i class="fa-regular fa-rectangle-code"></i>
+                <h2 class="m-0 text-dark counter font-600">{{ skill_list.count }}</h2>
+                <div class="text-muted m-t-5">Total Skills</div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+    <div class="row">
+        <div class="col-sm-12" style="display:inline;">
+            <form method='GET' class="" action="{% url 'dashboard:index' %}"> 
+                <div id="analytics_field">    
+                    <div class="col-sm-2">
+                        <label>Field Search:</label>
+                        <select name="field_name" id="field_name" class="form-control"
+                            onchange="this.form.submit()">
+                            <option value="" disabled selected hidden>Select Field</option>
+                            {% for field in fields %}
+                                {% dropdown_option field field sel_field_name %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>College Search:</label>
+                        <select name="college_name" id="college_filter" class="form-control"
+                            onchange="this.form.submit()">
+                            <option value="" disabled selected hidden>Select College</option>
+                            {% for college in college_list %}
+                            {% dropdown_option college college sel_college %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Company Search:</label>
+                        <select name="company_name" id="company_filter" class="form-control"
+                            onchange="this.form.submit()">
+                            <option value="" disabled selected hidden>Select Company</option>
+                            {% for company in company_list %}
+                            {% dropdown_option company company sel_company %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Country Search:</label>
+                        <select name="country" id="country_filter" class="form-control"
+                            onchange="this.form.submit()">
+                            <option value="" disabled selected hidden>Select Country</option>
+                            {% for country in country_list %}
+                            {% dropdown_option country country sel_country %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label>Skills Search:</label>
+                        <select name="skills" id="skill_filter" class="form-control no-select2"
+                            onchange="this.form.submit()">
+                            <option value="" disabled selected hidden>Select Skills</option>
+                            {% for skill in skill_list %}
+                            {% dropdown_option skill skill sel_skills %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="">
+                        <a href="{% url 'dashboard:index' %}"
+                        class="btn btn-primary ">Clear Filters</a>
+                    </div>
+                </div> 
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card-box">
+                <h4 class="text-dark header-title m-t-0">Total Students</h4>
+                <h4 class="text-dark header-title m-t-0"></h4>
+                    <div class="row">
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="myChart" style="height: 200px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:6%;">
+        <div class="col-lg-6 mb-4" id="is_test_status">
+            <div class="card-box h-100">
+                <h4 class="text-dark header-title m-t-0">Fields-Students Status</h4>
+                <p class="text-muted page-title-alt"></p>
+                <p class="text-muted page-title-alt"></p>
+                <div class="row">
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="fields-piechart" style="height: 150px; "></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card-box">
+                <h4 class="text-dark header-title m-t-0">Batch Years-Students Status</h4>
+                <p class="text-muted page-title-alt"></p>
+                <p class="text-muted page-title-alt"></p>
+                <div class="row">
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="batch-year-status-chart" style="height: 150px; "></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:6%;">
+        <div class="col-lg-6">
+            <div class="card-box">
+                <h4 class="text-dark header-title m-t-0">Colleges-Students Status</h4>
+                <p class="text-muted page-title-alt"></p>   
+                <div class="row">
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12" id="id_completed_tests_labels">
+                    </div><br><br><br>
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="colleges-status-chart" style="height: 150px; "></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card-box">
+                <h4 class="text-dark header-title m-t-0">Countries-Students Status</h4>
+                <p class="text-muted page-title-alt"></p>
+                <div class="row">
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12" id="id_test_categories_labels">
+                    </div><br><br><br>
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="countries-status-chart" style="height: 150px; "></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:6%;">
+        <div class="col-lg-6">
+            <div class="card-box">
+                <h4 class="text-dark header-title m-t-0">Comapany-Students Status</h4>
+                <p class="text-muted page-title-alt"></p>   
+                <div class="row">
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12" id="id_completed_tests_labels">
+                    </div><br><br><br>
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="company-status-chart" style="height: 150px; "></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row" style="margin-top:6%;">
+        <div class="col-lg-12">
+            <div class="card-box">
+                <h4 class="text-dark header-title m-t-0">Skills-Students Status</h4>
+                <p class="text-muted page-title-alt"></p>
+                <div class="row">
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12" id="id_completed_tests_labels">
+                    </div><br><br><br>
+                    <p class="text-muted page-title-alt"></p>
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="skills-status-chart" style="height: 150px; "></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:6%;">
+        <div class="col-lg-12">
+            <div class="card-box">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p class="text-muted page-title-alt"></p>
+                        <h4 class="text-dark header-title m-t-0">College Based Distribution
+                            <span id="processing_skills"></span> 
+                            <span id="processing_year"></span>
+                            <span id="processing_field"></span>
+                        </h4>
+                    </div>
+                    <div class="col-lg-6">
+                        <form method='GET' class="" action="" id="college_based_filter_form"> 
+                            <div id="analytics_field">    
+                                <div class="col-sm-2">
+                                    <label>Field Search:</label>
+                                    <select name="field_name" id="field_name" class="form-control"
+                                        onchange="college_based_chart()">
+                                        <option value="" disabled selected hidden>Select Field</option>
+                                        {% for field in fields %}
+                                            {% dropdown_option field field sel_field_name %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>Year Search:</label>
+                                    <select name="year" id="year_filter" class="form-control"
+                                        onchange="college_based_chart()">
+                                        <option value="" disabled selected hidden>Select Year</option>
+                                        {% for year in batch_years %}
+                                        {% dropdown_option year year sel_year %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>Skill Search:</label>
+                                    <select name="skills" id="skill_filter" class="form-control no-select2"
+                                        onchange="college_based_chart()">
+                                        <option value="" disabled selected hidden>Select Skill</option>
+                                        {% for skill in skill_list %}
+                                        {% dropdown_option skill skill sel_skills %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="">
+                                    <a href="{% url 'dashboard:index' %}"
+                                    class="btn btn-primary ">Clear Filters</a>
+                                </div>
+                            </div> 
+                        </form>
+                    </div>                   
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="college-based-chart" height="75%"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin-top:6%;">
+        <div class="col-lg-12">
+            <div class="card-box">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p class="text-muted page-title-alt"></p>
+                        <h4 class="text-dark header-title m-t-0">Country Based Distribution
+                            <span id="processing_country_skills"></span>
+                            <span id="processing_country_year"></span>
+                            <span id="processing_country_field"></span>
+                        </h4>
+                    </div>
+                    <div class="col-lg-6">
+                        <form method='GET' class="" action="" id="country_based_filter_form"> 
+                            <div id="analytics_field">    
+                                <div class="col-sm-2">
+                                    <label>Field Search:</label>
+                                    <select name="field_name" id="field_name" class="form-control"
+                                        onchange="country_based_chart()">
+                                        <option value="" disabled selected hidden>Select Field</option>
+                                        {% for field in fields %}
+                                            {% dropdown_option field field sel_field_name %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>Year Search:</label>
+                                    <select name="year" id="year_filter" class="form-control"
+                                        onchange="country_based_chart()">
+                                        <option value="" disabled selected hidden>Select Year</option>
+                                        {% for year in batch_years %}
+                                        {% dropdown_option year year sel_year %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>Skill Search:</label>
+                                    <select name="skills" id="skill_filter" class="form-control no-select2"
+                                        onchange="country_based_chart()">
+                                        <option value="" disabled selected hidden>Select Skill</option>
+                                        {% for skill in skill_list %}
+                                        {% dropdown_option skill skill sel_skills %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="">
+                                    <a href="{% url 'dashboard:index' %}"
+                                    class="btn btn-primary ">Clear Filters</a>
+                                </div>
+                            </div> 
+                        </form>
+                    </div>                   
+                    <div class="col-md-12">
+                        <div class="text-center">
+                            <canvas id="country-based-chart" height="75%"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+{% endblock %}
+
+
+
+{% block extra_js %}
+{% comment %} <script src="{% static 'assets/plugins/morris/morris.min.js' %}"></script>
+<script src="{% static 'assets/plugins/raphael/raphael-min.js' %}"></script>
+<script src="{% static 'assets/pages/jquery.dashboard_ecommerce.js' %}"></script>
+<script src="{% static 'assets/plugins/morris/morris.js' %}"></script> {% endcomment %}
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+<script type="text/javascript" src="{% static 'assets/js/Chart.min.js' %}"></script>
+<script>
+    $(document).ready(function () {
+        
+        $.get('{% url "dashboard:batch-year-chart" %}?{{query_string}}', function (data) {
+            var ctx = $("#myChart").get(0).getContext("2d");
+            new Chart(ctx, {
+                type: 'line', data: data
+            });
+        });
+        
+    }); 
+</script>
+
+<!-- Fields Pie Chart -->
+<script>
+    var field_chart;
+    function field_pie_chart() {
+        
+            $.ajax({
+                url:'{% url "dashboard:field-pie-chart" %}',
+                data:{},
+                dataType:'json',
+                success:function(data){
+                    let data_list_sum = data.fields_counts.reduce((partialSum, a) => partialSum + a, 0);
+                    
+                    if (field_chart) {
+                        field_chart.destroy()
+                    }  
+                    field_chart = new Chart(document.getElementById("fields-piechart"),{
+                        type: 'pie',
+                        data: {
+                            labels: data.fields_labels,
+                            datasets: [{
+                                backgroundColor:[
+                                    "#29465B",
+                                    "#95B9C7",
+                                    "#3B9C9C",
+                                    "#DCDCDC",
+                                    "#045F5F",
+                                    "#4C787E",
+                                    "#A0522D",
+                                    "#A0522D",
+                                    "#C4AEAD",
+                                    "#2B3856",
+                                    "#307D7E",
+                                    "#BCC6CC",
+                                    "#98AFC7",
+                                    "#838996",
+                                    "#566D7E",
+                                    "#4863A0",
+                                    "#2B547E",
+                                    "#36454F",
+                                    "#D5D6EA",
+                                    "#CCFFFF",
+                                    "#78C7C7",
+                                    "#40E0D0",
+                                    "#5F9EA0",
+                                    "#FFC0CB",
+                                    "#FFD700",
+                                    "#FFA07A",
+                                    "#FF69B4",
+                                    "#FF7F50",
+                                    "#FF8C00",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFFFE0",
+                                    "#FAFAD2",
+                                    "#F0E68C",
+                                    "#EEE8AA",
+                                    "#FFB347",
+                                    "#FFEBCD",
+                                    "#FA8072",
+                                    "#FFE4E1",
+                                    "#FFA07A",
+                                    "#FFDAB9",
+                                    "#FAF0E6",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#7FFFD4",
+                                    "#8FBC8F",
+                                    "#B0C4DE",
+                                    "#B22222",
+                                    "#CD5C5C",
+                                    "#DB7093",
+                                    "#DEB887",
+                                    "#FF00FF",
+                                    "#FF1493",
+                                    "#FF4500",
+                                    "#FF6347",
+                                    "#FF69B4",
+                                    "#FF8C00",
+                                    "#FFA07A",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFC0CB",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFE4E1",
+                                    "#FFEBCD",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#FFF8DC",
+                                    "#FFFACD",
+                                    "#FFFAF0",
+                                    "#FFFAFA",
+                                    "#FFFFE0",
+                                    "#FFFFF0"
+                                ],
+                                data: data.fields_counts
+                            }]  
+                        },
+                        options:{
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItems, data) {
+                                        return data.labels[tooltipItems.index] + 
+                                        " : " + 
+                                        data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] +" "+ "(" + Math.round((data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] / data_list_sum) * 100) + "%" + ")";
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels:{
+                                    boxWidth:20,
+                                }
+                            },
+                        }
+                    })
+                },
+                error: function(error_data){
+                    console.log("error")
+                    console.log(error_data)
+                }
+            })
+        }
+    $(document).ready(function () {
+        field_pie_chart();
+    })
+
+</script>
+
+<!-- Batch Year Pie Chart-->
+<script>
+    var batch_year_chart;
+    function batch_year_status_chart() {
+       
+            $.ajax({
+                url:'{% url "dashboard:batch-year-pie-chart" %}',
+                data:{},
+                dataType:'json',
+                success:function(data){
+                    let data_list_sum = data.batch_years_counts.reduce((partialSum, a) => partialSum + a, 0);
+
+                    if (batch_year_chart) {
+                        batch_year_chart.destroy()
+                    }
+                    batch_year_chart = new Chart(document.getElementById("batch-year-status-chart"),{
+                        type: 'pie',
+                        data: {
+                            labels: data.batch_years_labels,
+                            datasets: [{
+                                backgroundColor:[
+                                    "#29465B",
+                                    "#95B9C7",
+                                    "#3B9C9C",
+                                    "#DCDCDC",
+                                    "#045F5F",
+                                    "#4C787E",
+                                    "#A0522D",
+                                    "#A0522D",
+                                    "#C4AEAD",
+                                    "#2B3856",
+                                    "#307D7E",
+                                    "#BCC6CC",
+                                    "#98AFC7",
+                                    "#838996",
+                                    "#566D7E",
+                                    "#4863A0",
+                                    "#2B547E",
+                                    "#36454F",
+                                    "#D5D6EA",
+                                    "#CCFFFF",
+                                    "#78C7C7",
+                                    "#40E0D0",
+                                    "#5F9EA0",
+                                    "#FFC0CB",
+                                    "#FFD700",
+                                    "#FFA07A",
+                                    "#FF69B4",
+                                    "#FF7F50",
+                                    "#FF8C00",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFFFE0",
+                                    "#FAFAD2",
+                                    "#F0E68C",
+                                    "#EEE8AA",
+                                    "#FFB347",
+                                    "#FFEBCD",
+                                    "#FA8072",
+                                    "#FFE4E1",
+                                    "#FFA07A",
+                                    "#FFDAB9",
+                                    "#FAF0E6",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#7FFFD4",
+                                    "#8FBC8F",
+                                    "#B0C4DE",
+                                    "#B22222",
+                                    "#CD5C5C",
+                                    "#DB7093",
+                                    "#DEB887",
+                                    "#FF00FF",
+                                    "#FF1493",
+                                    "#FF4500",
+                                    "#FF6347",
+                                    "#FF69B4",
+                                    "#FF8C00",
+                                    "#FFA07A",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFC0CB",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFE4E1",
+                                    "#FFEBCD",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#FFF8DC",
+                                    "#FFFACD",
+                                    "#FFFAF0",
+                                    "#FFFAFA",
+                                    "#FFFFE0",
+                                    "#FFFFF0"
+                                ],
+                                data: data.batch_years_counts
+                            }]  
+                        },
+                        options:{
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItems, data) {
+                                        return data.labels[tooltipItems.index] + 
+                                        " : " + 
+                                        data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] +" "+"(" + Math.round((data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] / data_list_sum) * 100) + "%)";
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels:{
+                                    boxWidth:20,
+                                }
+                            },
+                        }
+                    })
+                },
+                error: function(error_data){
+                    console.log("error")
+                    console.log(error_data)
+                }
+            })
+        }
+    $(document).ready(function () {
+        batch_year_status_chart();
+        return false;
+    })
+    
+</script>
+
+<!-- Skills pie Chart-->
+<script>
+    var skills_chart;
+    function skills_status_chart() {
+        
+            $.ajax({
+                url:'{% url "dashboard:skill-pie-chart" %}',
+                data:{},
+                dataType:'json',
+                success:function(data){
+                    let data_list_sum = data.skills_counts.reduce((partialSum, a) => partialSum + a, 0);
+                    
+                    if (skills_chart) {
+                        skills_chart.destroy()
+                    }
+                    skills_chart = new Chart(document.getElementById("skills-status-chart"),{
+                        type: 'pie',
+                        data: {
+                            labels: data.skills_labels,
+                            datasets: [{
+                                backgroundColor:[
+                                    "#29465B",
+                                    "#95B9C7",
+                                    "#3B9C9C",
+                                    "#DCDCDC",
+                                    "#045F5F",
+                                    "#4C787E",
+                                    "#A0522D",
+                                    "#A0522D",
+                                    "#C4AEAD",
+                                    "#2B3856",
+                                    "#307D7E",
+                                    "#BCC6CC",
+                                    "#98AFC7",
+                                    "#838996",
+                                    "#566D7E",
+                                    "#4863A0",
+                                    "#2B547E",
+                                    "#36454F",
+                                    "#D5D6EA",
+                                    "#CCFFFF",
+                                    "#78C7C7",
+                                    "#40E0D0",
+                                    "#5F9EA0",
+                                    "#FFC0CB",
+                                    "#FFD700",
+                                    "#FFA07A",
+                                    "#FF69B4",
+                                    "#FF7F50",
+                                    "#FF8C00",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFFFE0",
+                                    "#FAFAD2",
+                                    "#F0E68C",
+                                    "#EEE8AA",
+                                    "#FFB347",
+                                    "#FFEBCD",
+                                    "#FA8072",
+                                    "#FFE4E1",
+                                    "#FFA07A",
+                                    "#FFDAB9",
+                                    "#FAF0E6",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#7FFFD4",
+                                    "#8FBC8F",
+                                    "#B0C4DE",
+                                    "#B22222",
+                                    "#CD5C5C",
+                                    "#DB7093",
+                                    "#DEB887",
+                                    "#FF00FF",
+                                    "#FF1493",
+                                    "#FF4500",
+                                    "#FF6347",
+                                    "#FF69B4",
+                                    "#FF8C00",
+                                    "#FFA07A",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFC0CB",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFE4E1",
+                                    "#FFEBCD",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#FFF8DC",
+                                    "#FFFACD",
+                                    "#FFFAF0",
+                                    "#FFFAFA",
+                                    "#FFFFE0",
+                                    "#FFFFF0"
+                                ],
+                                data: data.skills_counts
+                            }]  
+                        },
+                        options:{
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItems, data) {
+                                        return data.labels[tooltipItems.index] + 
+                                        " : " + 
+                                        data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] +" "+"(" + Math.round((data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] / data_list_sum) * 100) + "%)";
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels:{
+                                    boxWidth:20,
+                                }
+                            },
+                        }
+                    })
+                },
+                error: function(error_data){
+                    console.log("error")
+                    console.log(error_data)
+                }
+            })
+        }
+    $(document).ready(function () {
+        skills_status_chart();
+        return false;
+    })
+    
+</script>
+
+<!-- Countries Pie Chart-->
+<script>
+    var countries_chart;
+    function countries_status_chart() {
+        
+            $.ajax({
+                url:'{% url "dashboard:country-pie-chart" %}',
+                data:{},
+                dataType:'json',
+                success:function(data){
+                    let data_list_sum = data.countries_counts.reduce((partialSum, a) => partialSum + a, 0);
+
+                    if (countries_chart) {
+                        countries_chart.destroy()
+                    }
+                    countries_chart = new Chart(document.getElementById("countries-status-chart"),{
+                        type: 'pie',
+                        data: {
+                            labels: data.countries_labels,
+                            datasets: [{
+                                backgroundColor:[
+                                    "#29465B",
+                                    "#95B9C7",
+                                    "#3B9C9C",
+                                    "#DCDCDC",
+                                    "#045F5F",
+                                    "#4C787E",
+                                    "#A0522D",
+                                    "#A0522D",
+                                    "#C4AEAD",
+                                    "#2B3856",
+                                    "#307D7E",
+                                    "#BCC6CC",
+                                    "#98AFC7",
+                                    "#838996",
+                                    "#566D7E",
+                                    "#4863A0",
+                                    "#2B547E",
+                                    "#36454F",
+                                    "#D5D6EA",
+                                    "#CCFFFF",
+                                    "#78C7C7",
+                                    "#40E0D0",
+                                    "#5F9EA0",
+                                    "#FFC0CB",
+                                    "#FFD700",
+                                    "#FFA07A",
+                                    "#FF69B4",
+                                    "#FF7F50",
+                                    "#FF8C00",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFFFE0",
+                                    "#FAFAD2",
+                                    "#F0E68C",
+                                    "#EEE8AA",
+                                    "#FFB347",
+                                    "#FFEBCD",
+                                    "#FA8072",
+                                    "#FFE4E1",
+                                    "#FFA07A",
+                                    "#FFDAB9",
+                                    "#FAF0E6",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#7FFFD4",
+                                    "#8FBC8F",
+                                    "#B0C4DE",
+                                    "#B22222",
+                                    "#CD5C5C",
+                                    "#DB7093",
+                                    "#DEB887",
+                                    "#FF00FF",
+                                    "#FF1493",
+                                    "#FF4500",
+                                    "#FF6347",
+                                    "#FF69B4",
+                                    "#FF8C00",
+                                    "#FFA07A",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFC0CB",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFE4E1",
+                                    "#FFEBCD",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#FFF8DC",
+                                    "#FFFACD",
+                                    "#FFFAF0",
+                                    "#FFFAFA",
+                                    "#FFFFE0",
+                                    "#FFFFF0"
+                                ],
+                                data: data.countries_counts
+                            }]  
+                        },
+                        options:{
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItems, data) {
+                                        return data.labels[tooltipItems.index] + 
+                                        " : " + 
+                                        data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] +" "+"(" + Math.round((data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] / data_list_sum) * 100) + "%)";
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels:{
+                                    boxWidth:20,
+                                }
+                            },
+                        }
+                    })
+                },
+                error: function(error_data){
+                    console.log("error")
+                    console.log(error_data)
+                }
+            })
+        }
+    $(document).ready(function () {
+        countries_status_chart();
+        return false;
+    })
+    
+</script>
+<!-- Comapany Pie Chart-->
+<script>
+    var company_chart;
+    function company_status_chart() {
+        
+            $.ajax({
+                url:'{% url "dashboard:company-pie-chart" %}',
+                data:{},
+                dataType:'json',
+                success:function(data){
+                    let data_list_sum = data.company_counts.reduce((partialSum, a) => partialSum + a, 0);
+
+                    if (company_chart) {
+                        company_chart.destroy()
+                    }
+                    company_chart = new Chart(document.getElementById("company-status-chart"),{
+                        type: 'pie',
+                        data: {
+                            labels: data.company_labels,
+                            datasets: [{
+                                backgroundColor:[
+                                    "#29465B",
+                                    "#95B9C7",
+                                    "#3B9C9C",
+                                    "#DCDCDC",
+                                    "#045F5F",
+                                    "#4C787E",
+                                    "#A0522D",
+                                    "#A0522D",
+                                    "#C4AEAD",
+                                    "#2B3856",
+                                    "#307D7E",
+                                    "#BCC6CC",
+                                    "#98AFC7",
+                                    "#838996",
+                                    "#566D7E",
+                                    "#4863A0",
+                                    "#2B547E",
+                                    "#36454F",
+                                    "#D5D6EA",
+                                    "#CCFFFF",
+                                    "#78C7C7",
+                                    "#40E0D0",
+                                    "#5F9EA0",
+                                    "#FFC0CB",
+                                    "#FFD700",
+                                    "#FFA07A",
+                                    "#FF69B4",
+                                    "#FF7F50",
+                                    "#FF8C00",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFFFE0",
+                                    "#FAFAD2",
+                                    "#F0E68C",
+                                    "#EEE8AA",
+                                    "#FFB347",
+                                    "#FFEBCD",
+                                    "#FA8072",
+                                    "#FFE4E1",
+                                    "#FFA07A",
+                                    "#FFDAB9",
+                                    "#FAF0E6",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#7FFFD4",
+                                    "#8FBC8F",
+                                    "#B0C4DE",
+                                    "#B22222",
+                                    "#CD5C5C",
+                                    "#DB7093",
+                                    "#DEB887",
+                                    "#FF00FF",
+                                    "#FF1493",
+                                    "#FF4500",
+                                    "#FF6347",
+                                    "#FF69B4",
+                                    "#FF8C00",
+                                    "#FFA07A",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFC0CB",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFE4E1",
+                                    "#FFEBCD",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#FFF8DC",
+                                    "#FFFACD",
+                                    "#FFFAF0",
+                                    "#FFFAFA",
+                                    "#FFFFE0",
+                                    "#FFFFF0"
+                                ],
+                                data: data.company_counts
+                            }]  
+                        },
+                        options:{
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItems, data) {
+                                        return data.labels[tooltipItems.index] + 
+                                        " : " + 
+                                        data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] +" "+"(" + Math.round((data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] / data_list_sum) * 100) + "%)";
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels:{
+                                    boxWidth:20,
+                                }
+                            },
+                        }
+                    })
+                },
+                error: function(error_data){
+                    console.log("error")
+                    console.log(error_data)
+                }
+            })
+        }
+    $(document).ready(function () {
+        company_status_chart();
+        return false;
+    })
+    
+</script>
+
+<!-- Colleges Pie Chart-->
+<script>
+    var colleges_chart;
+    function colleges_status_chart() {
+       
+            $.ajax({
+                url:'{% url "dashboard:college-pie-chart" %}',
+                data:{},
+                dataType:'json',
+                success:function(data){
+                    let data_list_sum = data.colleges_counts.reduce((partialSum, a) => partialSum + a, 0);
+                    
+
+                    if (colleges_chart) {
+                        colleges_chart.destroy()
+                    }
+                    colleges_chart = new Chart(document.getElementById("colleges-status-chart"),{
+                        type: 'pie',
+                        data: {
+                            labels: data.colleges_labels,
+                            datasets: [{
+                                backgroundColor:[
+                                    "#29465B",
+                                    "#95B9C7",
+                                    "#3B9C9C",
+                                    "#DCDCDC",
+                                    "#045F5F",
+                                    "#4C787E",
+                                    "#A0522D",
+                                    "#A0522D",
+                                    "#C4AEAD",
+                                    "#2B3856",
+                                    "#307D7E",
+                                    "#BCC6CC",
+                                    "#98AFC7",
+                                    "#838996",
+                                    "#566D7E",
+                                    "#4863A0",
+                                    "#2B547E",
+                                    "#36454F",
+                                    "#D5D6EA",
+                                    "#CCFFFF",
+                                    "#78C7C7",
+                                    "#40E0D0",
+                                    "#5F9EA0",
+                                    "#FFC0CB",
+                                    "#FFD700",
+                                    "#FFA07A",
+                                    "#FF69B4",
+                                    "#FF7F50",
+                                    "#FF8C00",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFFFE0",
+                                    "#FAFAD2",
+                                    "#F0E68C",
+                                    "#EEE8AA",
+                                    "#FFB347",
+                                    "#FFEBCD",
+                                    "#FA8072",
+                                    "#FFE4E1",
+                                    "#FFA07A",
+                                    "#FFDAB9",
+                                    "#FAF0E6",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#7FFFD4",
+                                    "#8FBC8F",
+                                    "#B0C4DE",
+                                    "#B22222",
+                                    "#CD5C5C",
+                                    "#DB7093",
+                                    "#DEB887",
+                                    "#FF00FF",
+                                    "#FF1493",
+                                    "#FF4500",
+                                    "#FF6347",
+                                    "#FF69B4",
+                                    "#FF8C00",
+                                    "#FFA07A",
+                                    "#FFA500",
+                                    "#FFB6C1",
+                                    "#FFC0CB",
+                                    "#FFDAB9",
+                                    "#FFE4C4",
+                                    "#FFE4E1",
+                                    "#FFEBCD",
+                                    "#FFF0F5",
+                                    "#FFF5EE",
+                                    "#FFF8DC",
+                                    "#FFFACD",
+                                    "#FFFAF0",
+                                    "#FFFAFA",
+                                    "#FFFFE0",
+                                    "#FFFFF0"
+                                ],
+                                data: data.colleges_counts
+                            }]  
+                        },
+                        options:{
+                            tooltips: {
+                                callbacks: {
+                                    label: function(tooltipItems, data) {
+                                        return data.labels[tooltipItems.index] + 
+                                        " : " + 
+                                        data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] +" "+"(" + Math.round((data.datasets[tooltipItems.datasetIndex].data[tooltipItems.index] / data_list_sum) * 100) + "%)";
+                                    }
+                                }
+                            },
+                            legend: {
+                                display: true,
+                                position: 'right',
+                                labels:{
+                                    boxWidth:20,
+                                }
+                            },
+                        }
+                    })
+                },
+                error: function(error_data){
+                    console.log("error")
+                    console.log(error_data)
+                }
+            })
+        }
+    $(document).ready(function () {
+        colleges_status_chart();
+        return false;
+    })
+    
+</script>
+
+<!-- College Based HorizontalBar Chart -->
+<script>
+    var college_based;
+    function college_based_chart() {
+        var field_name = $('#college_based_filter_form select[name="field_name"]').val();
+        var year = $('#college_based_filter_form select[name="year"]').val();
+        var skills = $('#college_based_filter_form select[name="skills"]').val();
+        $.ajax({
+            url:'{% url "dashboard:college-based-chart" %}',
+            data:{
+                'field_name':field_name,
+                'year':year,
+                'skills':skills
+            },
+            dataType:'json',
+            success:function(data){
+                document.getElementById("processing_field").innerHTML= data.sel_field_name
+                document.getElementById("processing_skills").innerHTML= data.sel_skills
+                document.getElementById("processing_year").innerHTML= data.sel_year
+                if(college_based){
+                    college_based.destroy()
+                }
+                college_based = new Chart(document.getElementById("college-based-chart"),{
+                    type: 'horizontalBar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                        barThickness: 50,
+                        backgroundColor:[
+                            "#29465B",
+                            "#95B9C7",
+                            "#3B9C9C",
+                            "#DCDCDC",
+                            "#045F5F",
+                            "#4C787E",
+                            "#A0522D",
+                            "#A0522D",
+                            "#C4AEAD",
+                            "#2B3856",
+                            "#307D7E",
+                            "#BCC6CC",
+                            "#98AFC7",
+                            "#838996",
+                            "#566D7E",
+                            "#4863A0",
+                            "#2B547E",
+                            "#36454F",
+                            "#D5D6EA",
+                            "#CCFFFF",
+                            "#78C7C7",
+                            "#40E0D0",
+                            "#5F9EA0",
+                            "#FFC0CB",
+                            "#FFD700",
+                            "#FFA07A",
+                            "#FF69B4",
+                            "#FF7F50",
+                            "#FF8C00",
+                            "#FFA500",
+                            "#FFB6C1",
+                            "#FFDAB9",
+                            "#FFE4C4",
+                            "#FFFFE0",
+                            "#FAFAD2",
+                            "#F0E68C",
+                            "#EEE8AA",
+                            "#FFB347",
+                            "#FFEBCD",
+                            "#FA8072",
+                            "#FFE4E1",
+                            "#FFA07A",
+                            "#FFDAB9",
+                            "#FAF0E6",
+                            "#FFF0F5",
+                            "#FFF5EE",
+                            "#7FFFD4",
+                            "#8FBC8F",
+                            "#B0C4DE",
+                            "#B22222",
+                            "#CD5C5C",
+                            "#DB7093",
+                            "#DEB887",
+                            "#FF00FF",
+                            "#FF1493",
+                            "#FF4500",
+                            "#FF6347",
+                            "#FF69B4",
+                            "#FF8C00",
+                            "#FFA07A",
+                            "#FFA500",
+                            "#FFB6C1",
+                            "#FFC0CB",
+                            "#FFDAB9",
+                            "#FFE4C4",
+                            "#FFE4E1",
+                            "#FFEBCD",
+                            "#FFF0F5",
+                            "#FFF5EE",
+                            "#FFF8DC",
+                            "#FFFACD",
+                            "#FFFAF0",
+                            "#FFFAFA",
+                            "#FFFFE0",
+                            "#FFFFF0"
+                        ],
+                        data: data.college_students_count
+                        }]
+                    },
+                    options:{
+                        legend: {
+                            display: false
+                        },
+                        scales:{
+                            xAxes: [{
+                                stacked: true,
+                                ticks:{
+                                    beginAtZero: true,
+                                    callback: function(value) {
+                                        if (value % 1 === 0) {
+                                            return value;
+                                        }
+                                    },
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Students'
+                                }
+                            }],
+                            yAxes: [
+                                {
+                                    stacked: true
+                                },
+                            ]
+                        }
+                    }
+                })
+                
+            }
+        })
+    }
+    $(document).ready(function () {
+        college_based_chart();
+        return false;
+    })
+    $("#college_based_filter_form").on("change", function(event){
+        event.preventDefault();
+        college_based_chart();
+        return false;
+    })
+</script>
+
+<!-- Country Based HorizontalBar Chart -->
+<script>
+    var country_based
+    function country_based_chart() {
+        var field_name = $('#country_based_filter_form select[name="field_name"]').val();
+        var year = $('#country_based_filter_form select[name="year"]').val();
+        var skills = $('#country_based_filter_form select[name="skills"]').val();
+        $.ajax({
+            url:'{% url "dashboard:country-based-chart" %}',
+            data:{
+                'field_name':field_name,
+                'year':year,
+                'skills':skills
+            },
+            dataType:'json',
+            success:function(data){
+                document.getElementById("processing_country_field").innerHTML= data.sel_field_name
+                document.getElementById("processing_country_skills").innerHTML= data.sel_skills
+                document.getElementById("processing_country_year").innerHTML= data.sel_year
+                if(country_based){
+                    country_based.destroy()
+                }
+                country_based = new Chart(document.getElementById("country-based-chart"),{
+                    type: 'horizontalBar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                        barThickness: 50,
+                        backgroundColor:[
+                        "#29465B",
+                        "#95B9C7",
+                        "#3B9C9C",
+                        "#DCDCDC",
+                        "#045F5F",
+                        "#4C787E",
+                        "#A0522D",
+                        "#A0522D",
+                        "#C4AEAD",
+                        "#2B3856",
+                        "#307D7E",
+                        "#BCC6CC",
+                        "#98AFC7",
+                        "#838996",
+                        "#566D7E",
+                        "#4863A0",
+                        "#2B547E",
+                        "#36454F",
+                        "#D5D6EA",
+                        "#CCFFFF",
+                        "#78C7C7",
+                        "#40E0D0",
+                        "#5F9EA0"],
+                        data: data.country_students_count
+                        }]
+                    },
+                    options:{
+                        legend: {
+                            display: false
+                        },
+                        scales:{
+                            xAxes: [{
+                                stacked: true,
+                                ticks:{
+                                    beginAtZero: true,
+                                    callback: function(value) {
+                                        if (value % 1 === 0) {
+                                            return value;
+                                        }
+                                    },
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: 'Students'
+                                }
+                            }],
+                            yAxes: [
+                                {
+                                    stacked: true
+                                },
+                            ]
+                        }
+                    }
+                })
+            }
+        })
+    }
+    $(document).ready(function () {
+        country_based_chart();
+        return false;
+    })
+    $("#country_based_filter_form").on("change", function(event){
+        event.preventDefault();
+        country_based_chart();
+        return false;
+    })
+</script>
+
+
+{% endblock %}

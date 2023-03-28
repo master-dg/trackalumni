@@ -1,0 +1,284 @@
+{% extends 'base.html' %} {% block extra_css %}
+<style>
+  .content {
+    margin-top: 115px;
+    padding: 10px;
+    display: flex;
+  }
+  .container {
+    width: auto;
+    margin-top:-6.5%;
+    margin-left: 18%;
+  }
+  .container-alt {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .breadcrumb {
+    background-color: transparent;
+    margin-bottom: 15px;
+    padding-top: 10px;
+    padding-left: 0px;
+  }
+  .card-box {
+    padding: 20px;
+    border: 1px solid rgba(54, 64, 74, 0.05);
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    background-clip: padding-box;
+    margin-bottom: 20px;
+    background-color: #ffffff;
+  }
+  .content {
+    margin-bottom: 60px;
+    margin-top: 60px;
+    padding: 20px 5px 15px 5px;
+    margin-left:-25%;
+  }
+  div.dataTables_filter {
+    text-align: center;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <ol class="breadcrumb">
+        {% block breadcrumb %}
+        <li><a href="/">  TrackAlumni > </a></li>
+        <li class="active"> Requests</li>
+        {% endblock %}
+      </ol>
+    </div>
+    <div class="col-sm-10">
+      <h2 class="page-title">New Requests</h2>
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-lg-12">
+      {% for queryset in object_list %} 
+        {% for key,user_list in queryset.items%}
+          <h4><b>{{key|title}}</b></h4>
+          <div class="card-box">
+            <div class="table-responsive">
+              <table class="table {{key}}-list-table table-bordered table-striped" id="{{key}}_list_table">
+                <thead>
+                  <tr>
+                    <th scope="col" class="action-checkbox-column" style="width:0px;">
+                      <div class="text">
+                          <span>
+                              <input type="checkbox" id="action-toggle" name="checked" class="{{key}} checked-all"
+                                  onclick='{{key}}checkedAll(this)'>
+                          </span>
+                      </div>
+                    </th>
+                    <th>User Name</th>
+                    <th>Email</th>
+                    <th>Phone No</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody  class="{{key}}-body">
+                    {% if user_list %} 
+                        {% for user in user_list %}
+                          <tr id="{{key}}_{{user.id}}" class="{{key}}-list-row">
+                            <td scope="col" class="action-checkbox-column" >
+                              <div class="text">
+                                  <span>
+                                      <input type="checkbox" id="action-toggle" name="check" class="{{key}}-checked-all"
+                                          value="{{user.id}}">
+                                  </span>
+                              </div> 
+                            </td>
+                            
+                            <td>
+                                {{user.username}} - {{user.first_name}} {{user.last_name}}
+                            </td>
+                            <td>{{user.email}}</td>
+                            <td>{{user.phone_no}}</td>
+                            <td>{{user.department.department_name}}</td>
+                            <td>{{user.designation.designation}}</td>
+                            <td  class="delete-button">
+                                <div class="button-list">
+                                <a
+                                  data-bs-toggle = "modal"
+                                  data-bs-target = "#delete_user_modal"
+                                  data-id="{{user.id}}"
+                                  data-role="{{user.role}}"
+                                  data-name = "{{user.username}} {{user.email}}"
+                                  id="delete_user_id"
+                                  class="btn delete-user">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                    </i>
+                                </a>
+                                </div>
+                            </td>
+                          </tr>
+                        {% endfor %} 
+                    {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+    <!-- end col -->
+  </div>
+  <div class="row">
+    <div class="col-sm-10">
+    </div>
+    <div class="col-sm-2">
+      <a
+        id="bulk_verify_user"
+        href="#"
+        class="btn btn-primary btn-md waves-effect waves-light m-b-30"
+        style="float: right"
+        data-animation="fadein"
+        data-plugin="custommodal"
+        data-overlaySpeed="200"
+        data-overlayColor="#0F58D6"
+        ><i class="md md-add"></i>Verify  Users</a
+      >
+    </div>
+  </div>
+</div>
+
+<!-- delete user modal -->
+<div class="modal fade delete_user_modal" id="delete_user_modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="delete_user_modalLabel" aria-hidden="true">
+  <div class="modal-dialog comman_modal modal-dialog-centered">
+    {% include 'user_delete.html' %}
+  </div>
+</div>
+
+
+{% endblock %} 
+
+
+{% block extra_js %} 
+  <script>
+    $(document).ready(function () {
+        $('#admin_list_table').DataTable({
+           scrollX: false,
+         }); 
+        $('#superuser_list_table').DataTable({
+           scrollx: false,
+         }); 
+        $('#user_list_table').DataTable({
+           scrollx: false,
+         }); 
+
+      $('.admin-list-row').on('click', "a", "#delete_user_id",function(){
+        user_name= $(this).attr("data-name")
+        user_id = $(this).attr("data-id")
+        user_role = $(this).attr("data-role")
+        user_email = $(this).attr("data-email")
+
+        $("#delete_user_modal #delete-user-name-role").html(`${user_name}` + `(${user_role})`+`${user_email}`)
+        $('#delete_user_modal #delete_user_form_id').attr('action', `/users_auth/delete-user/${parseInt(user_id)}/`)
+
+      })
+
+      $('.superuser-list-row').on('click', "a", "#delete_user_id",function(){
+        user_name= $(this).attr("data-name")
+        user_id = $(this).attr("data-id")
+        user_role = $(this).attr("data-role")
+
+        $("#delete_user_modal #delete-user-name-role").html(`${user_name}` + `(${user_role})`)
+        $('#delete_user_modal #delete_user_form_id').attr('action', `/users_auth/delete-user/${parseInt(user_id)}/`)
+
+      })
+      
+      $('.user-list-row').on('click', "a", "#delete_user_id", function(){
+        user_name= $(this).attr("data-name")
+        user_id = $(this).attr("data-id")
+        user_role = $(this).attr("data-role")
+
+        $("#delete_user_modal #delete-user-name-role").html(`${user_name}` + `(${user_role})`)
+        $('#delete_user_modal #delete_user_form_id').attr('action', `/users_auth/delete-user/${parseInt(user_id)}/`)
+
+      })
+        
+      //delete user
+      $("#delete_user_form_id").submit(function(){
+        event.preventDefault()
+        let csrfmiddlewaretoken = $(this).children().first().val();
+        let user_delete_url = $(this).attr('action');
+        parts = user_delete_url.split("/"),
+        user_id = parts[parts.length-2];
+        
+        $.ajax({
+          type: "POST",
+          url: `${user_delete_url}`,
+          data: {"id" : user_id },
+          processData: false,
+          contentType: false,
+          headers: {
+            'X-CSRFTOKEN': csrfmiddlewaretoken
+          },
+          success: function(response){
+            if (response?.error) {
+              form_validation('#delete_user_form_id', response?.error)
+            } else {
+              window.location = "/users_auth/requests/"
+            }
+          },
+        });
+      });
+    });
+    function admincheckedAll(bx) {
+      var admin_cbs = document.getElementsByClassName('admin-checked-all');
+      for (var i = 0; i < admin_cbs.length; i++) {
+          if (admin_cbs[i].type == 'checkbox') {
+            admin_cbs[i].checked = bx.checked;
+          }
+      }
+    }
+    function superusercheckedAll(bx) {
+      var superuser_cbs = document.getElementsByClassName('superuser-checked-all');
+      for (var i = 0; i < superuser_cbs.length; i++) {
+          if (superuser_cbs[i].type == 'checkbox') {
+            superuser_cbs[i].checked = bx.checked;
+          }
+      }
+    }
+    function usercheckedAll(bx) {
+      var user_cbs = document.getElementsByClassName('user-checked-all');
+      for (var i = 0; i < user_cbs.length; i++) {
+          if (user_cbs[i].type == 'checkbox') {
+            user_cbs[i].checked = bx.checked;
+          }
+      } 
+    }
+
+    $(document).ready(function () {
+      var $submit = $("#bulk_verify_user").hide(),
+          $cbs = $('input[name="checked"], input[name="check"]').click(function () {
+              $submit.toggle($cbs.is(":checked"));
+          });
+    });
+
+    $(document).ready(function () {
+      $("#bulk_verify_user").click(function () {
+          var batch = [];
+          $.each($("input[name='check']:checked"), function () {
+              batch.push($(this).val());
+          });
+          // Generate URL without "id" bit
+          var url = `{% url 'users_auth:batch-requests-verify' %}`;
+          url = url + "?batch=" + batch
+          // Construct the full URL with "id"
+          document.location.href = url
+      });
+    });
+</script> 
+{% endblock %}

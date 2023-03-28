@@ -1,0 +1,171 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+{% endblock %}
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner py-4">
+        <!-- College Admin Registration -->
+        <div class="card" style="margin-left:-30%;">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center">
+              <a href="index.html" class="app-brand-link gap-2">
+                <span class="app-brand-text demo h3 mb-0 fw-bold">User Registration</p></span>
+              </a>
+            </div>
+            <!-- /Logo -->
+           
+            <p class="mb-4">Fill in User details below... </p>
+            
+            <form id="user_reg_form" class="mb-3" action="" method="POST">
+              {% csrf_token %}
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="text" required class="form-control" id="email" name="email" placeholder="Enter your Email" autofocus  value="{% if form.email.value %}{{form.email.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" required class="form-control" id="username" name="username" placeholder="Enter your Username" autofocus  value="{% if form.username.value %}{{form.username.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" required class="form-control" id="first_name" name="first_name" placeholder="Enter your First Name" autofocus value="{% if form.first_name.value %}{{form.first_name.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter your Last Name" autofocus  value="{% if form.last_name.value %}{{form.last_name.value}}{% endif%}">
+              </div>
+              <div class="mb-3">
+                <label for="role" class="form-label">Role</label>
+                <select id='role' name="role" required class="form-control" placeholder="Select Your Role">
+                  <option value="" disabled selected hidden>Select Your Role</option>
+                    {% for role in role_list %}
+                    <option value="{{role}}">{{role}}</option>
+                    {% endfor %}
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="college_name" class="form-label">College Name</label>
+                <select id='college_name' name="college_name" required class="form-control" autofocus>
+                  <option value="" disabled selected hidden>Select Your College</option>
+                    {% for college in college_list %}
+                    <option value="{{college.id}}">{{college.college_name}}</option>
+                    {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="department" class="form-label">Department</label>
+                <select id='department' name="department" required class="form-control" autofocus>
+                  <option value="" disabled selected hidden>Select Your Department</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="designation" class="form-label">Designation</label>
+                <select id='designation' name="designation" required class="form-control" autofocus>
+                  <option value="" disabled selected hidden>Select Your Designation</option>
+                </select>
+              </div>
+              
+              <div class="mb-3">
+                <label for="phone_no" class="form-label">Phone No</label>
+                <input type="tel" class="form-control" id="phone_no" name="phone_no" placeholder="Enter your Phone No" autofocus  value="{% if form.phone_no.value %}{{form.phone_no.value}}{% endif%}">
+              </div>
+              <button type="submit" class="btn btn-primary d-grid w-100">Register</button>
+            </form>
+            <div class="text-center">
+              <a href="{% url "login" %}" class="d-flex align-items-center justify-content-center">
+                <i class="bx bx-chevron-left scaleX-n1-rtl"></i>
+                 Login
+              </a>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block extra_js %}
+<script>
+  $(document).ready(function () {
+    
+
+    $("#college_name").on("change", function(){
+      college_id = $(this).find(":selected").val();
+     
+      if(college_id == ""){
+        
+        $("#department").find('option').remove().end();
+        $("#designation").find('option').remove().end();
+        $("#department").append(`<option value="" id="">Select Department</option>`)
+        $("#designation").append(`<option value="" id="">Select Designation</option>`)
+      }
+      else{
+      
+        $.ajax({
+          type: "GET",
+          url: `/users_auth/singup/user-dept-desg/${college_id}/`,
+          processData: false,
+          contentType: false,
+          success: function(response){
+            if (response?.dept_list && response?.desg_list) {
+              let departments = response.dept_list
+              let designations = response.desg_list
+
+              $("#department").find('option').remove().end();
+              $("#department").append(`<option value="" id="" disabled selected hidden>Select Your Department</option>`)
+              $.each(departments, function(key,item){
+                $("#department").append(`<option value="${item['id']}" id="${item['id']}">${item['department_name']}</option>`)
+              })
+
+              $("#designation").find('option').remove().end();
+              $("#designation").append(`<option value="" id="" disabled selected hidden>Select Your Designation</option>`)
+              $.each(designations, function(key,item){
+                $("#designation").append(`<option value="${item['id']}" id="${item['id']}">${item['designation']}</option>`)
+              })
+            
+            }
+          },
+        });
+      }
+    })
+    
+    var form = document.querySelector("#user_reg_form")
+    $("#user_reg_form").submit(function (e){
+      e.preventDefault()
+      let csrfmiddlewaretoken = $(this).children().first().val();
+      var formData = new FormData(form)
+      $.ajax({
+        type: "POST",
+        url: `{%  url 'users_auth:add-user' %}`,
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {  
+          'X-CSRFTOKEN': csrfmiddlewaretoken
+        },
+        success: function(response){
+          if (response?.error) {
+            form_validation('#user_reg_form', response?.error)
+          } else {
+            window.location = "/college-registration/password-sent-to-admin/"
+          }
+        },
+      });
+    })
+   
+  })
+  
+</script>
+{% endblock %}
+

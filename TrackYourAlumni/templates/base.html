@@ -1,0 +1,259 @@
+{% load static %}
+{% load startswith %}
+<!DOCTYPE html>
+<html lang="en" class="light-style  customizer-hide" dir="ltr" data-theme="theme-bordered" data-assets-path="../../assets/" data-template="vertical-menu-template-bordered">
+
+  
+<!-- Mirrored from pixinvent.com/demo/frest-clean-bootstrap-admin-dashboard-template/html/vertical-menu-template-bordered/auth-forgot-password-basic.html by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 20 Oct 2022 10:22:21 GMT -->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>
+        {% block title %}
+        {% endblock  %}
+    </title>
+    <meta name="description" content="Start your development with a Dashboard for Bootstrap 5" />
+    <meta name="keywords" content="dashboard, bootstrap 5 dashboard, bootstrap 5 admin, bootstrap 5 design, bootstrap 5">
+    <link rel="stylesheet" href="{% static 'assets/css/core.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'assets/css/pages.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}" type="text/css">
+
+    <!-- Canonical SEO -->
+    <link rel="canonical" href="https://1.envato.market/frest_admin">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{% static 'assets/image/logo.png' %}" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&amp;family=Rubik:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&amp;display=swap" rel="stylesheet">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/boxicons.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/fontawesome.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/fonts/flag-icons.css' %}" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/rtl/core.css' %}" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/rtl/theme-bordered.css' %}" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="{% static 'assets/css/demo.css' %}" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/typeahead-js/typeahead.css' %}" />
+
+    <!-- Vendor -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/libs/formvalidation/dist/css/formValidation.min.css' %}" />
+
+    <!-- Page CSS -->
+
+    <!-- Page -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/css/pages/page-auth.css' %}">
+
+    <!--Sidebar CSS-->
+    <link rel="stylesheet" href="{% static 'assets/css/sidebar.css' %}" type="text/css"> 
+
+    <!-- DataTables -->
+    <link href="{% static 'assets/vendor/libs/datatables/jquery.dataTables.min.css' %}" rel="stylesheet" type="text/css" />
+
+    <!-- Helpers -->
+    <script src="{% static 'assets/vendor/js/helpers.js' %}"></script>
+
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
+    <script src="{% static 'assets/vendor/js/template-customizer.js' %}"></script>
+
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async="async" src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        var resizefunc = [];
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+        dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    <!-- Custom notification for demo -->
+    <!-- beautify ignore:end -->
+    {% block  main_css%}
+    <style>
+        @keyframes rotation {
+            from {
+              transform: rotate(0deg);
+            }
+    
+            to {
+              transform: rotate(359deg);
+            }
+          }
+    
+          .animationload .loader img {
+            width: 60px;
+            height: 60px;
+            font-size: 60px;
+            text-align: center;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            margin: -60px 0 0 -60px;
+            animation: rotation 2s infinite linear;
+            color: #74a2e5;
+          }
+          .filter-blue {
+            filter: invert(22%) sepia(80%) saturate(3078%) hue-rotate(214deg)
+              brightness(90%) contrast(90%);
+          }
+        .animationload {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #fff;
+            /* change if the mask should have another color then white */
+            z-index: 999999;
+        }
+    </style>
+    {% endblock  %}
+
+    {% block extra_css %}
+    {% endblock  %}
+</head>
+    <body>
+        <div class="animationload" style="display: block">
+            <div class="loader">
+                <div style="width: 50px; height: 50px">
+                    <img
+                    src="{% static 'assets/image/bearing-icon.svg' %}"
+                    class="filter-blue"
+                    />
+                </div>
+            </div>
+        </div>
+        {% block body %}
+            <div class="grid-container">
+                <div class="aside">
+                    {% block sidebar %}
+                    {% include 'sidebar.html' %}
+                    {% endblock  %}
+                </div>
+                <div class="navbar">
+                    {% block header %}
+                        {% include 'navbar.html' %}
+                    {% endblock  %}
+                </div>
+                <div class="content">
+                    {% block content %}
+                    {% endblock  %}
+                </div>
+            </div>
+        {% endblock  %}
+        {% block main_js %}
+            <!-- Core JS -->
+            <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+            <script src="{% static 'assets/js/modernizr.min.js' %}"></script>
+
+            <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+            <script src="{% static 'assets/js/bootstrap.min.js' %}"></script>
+            <script src="{% static 'assets/js/detect.js' %}"></script>
+            <script src="{% static 'assets/js/fastclick.js' %}"></script>
+            <script src="{% static 'assets/js/jquery.slimscroll.js' %}"></script>
+            <script src="{% static 'assets/js/jquery.blockUI.js' %}"></script>
+            <script src="{% static 'assets/js/wow.min.js' %}"></script>
+            <script src="{% static 'assets/js/jquery.nicescroll.js' %}"></script>
+            <script src="{% static 'assets/js/jquery.scrollTo.min.js' %}"></script>
+            <script src="{% static 'assets/js/jquery.core.js' %}"></script>
+            <script src="{% static 'assets/js/jquery.app.js' %}"></script>
+
+
+            <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>
+            <script src="{% static 'assets/vendor/libs/datatables/jquery.dataTables.min.js' %}"></script>
+            <script src="{% static 'assets/vendor/libs/datatables/dataTables.bootstrap.js' %}"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.1/js/select2.min.js"></script>
+            <script src="{% static 'assets/vendor/libs/popper/popper.js' %}"></script>
+            <script src="{% static 'assets/vendor/js/bootstrap.js' %}"></script>
+            <script src="{% static 'assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
+            <script src="{% static 'assets/vendor/libs/typeahead-js/typeahead.js' %}"></script>
+            
+            <script src="{% static 'assets/vendor/js/menu.js' %}"></script>
+
+
+
+            <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+            <script type="text/javascript" src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
+            <!-- endbuild -->
+
+            <!-- Vendors JS -->
+
+            <!-- Main JS -->
+
+            <!-- Page JS -->
+            <!--set validations in form-->
+            <script>
+                function set_error_message(field_name, error_message) {
+                    if ($.trim($(`#${field_name}_error`).html()).length) {
+                        $(`#${field_name}_error`).html(`${error_message}`)
+                    } else {
+                        ele = $(`[name=${field_name}]`).closest('.mb-3')
+                        ele.after(`<p style="color:red; font-size: 12px; margin-top:3px;" id=${field_name}_error>${error_message}</p>`)
+                    }
+                }
+        
+                function form_validation(form_id, data) {
+                    form = $(form_id)
+                    for (let index = 0; index < form[0].length; index++) {
+                        if (data) {
+                            $.each(data, function (field_name, error_message) {
+                                set_error_message(field_name, error_message);
+                                $('.modal').scrollTop(0);
+                                if (!(form[0][index]['name'] === field_name)) {
+                                    $(`#${form[0][index]['name']}_error`).html('')
+                                }
+                            });
+                        } else {
+                            $(`#${form[0][index]['name']}_error`).html('')
+                        }
+        
+                        if (form[0][index]['required']) {
+                            if (!($.trim(form[0][index]['value']).length)) {
+                                set_error_message(form[0][index]['name'], "This field is required")
+                                $('.modal').scrollTop(0);
+                            }
+                        } else {
+                            $(`#${form[0][index]['name']}_error`).html('')
+                        }
+                    }
+                }
+        </script>
+        <script>
+           
+            let submenu=document.getElementById("subMenu");
+
+            function toggleMenu(){
+                subMenu.classList.toggle("open-menu");
+            }
+        </script>
+        <script>
+        </script>
+        {% endblock  %}
+        {% block extra_js %}
+            
+
+
+        
+        {% endblock  %}
+        
+        
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        
+        <script src="" async defer></script>
+    </body>
+</html>

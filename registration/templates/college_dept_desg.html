@@ -1,0 +1,532 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% load crispy_forms_tags %}
+
+{% block extra_css %}
+ <style>
+    :root {
+        --dark: #374151;
+        --darker: #1F2937;
+        --darkest: #111827;
+        --grey: #6B7280;
+        --pink: #EC4899;
+        --purple: #8B5CF6;
+        --light: #EEE;
+
+    }
+    
+    * {
+        margin: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        color: #FFF;
+        background-color:white;
+    }
+    
+    
+    header {
+        padding: 2rem 1rem;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    header h1{ 
+        font-size: 2rem;
+        font-weight: 300;
+        color: #516377;
+        margin-bottom: 1rem;
+    }
+    #department{
+        background-color: #f8f6f6;
+        padding: 3%;
+        width:470px;
+        margin-right: 2%;
+        
+    }
+    #designation{
+        background-color: #f8f6f6;
+        padding: 3%;
+        width:470px;
+        margin-right: 1%;
+    }
+    /* #new-task-form {
+        display: flex;
+    } */
+    
+    input, button {
+        appearance: none;
+        border: none;
+        outline: none;
+        background: none;
+    }
+    
+    #new-task-input-dept,#new-task-input-desg {
+        flex: 1 1 0%;
+        background-color:rgb(229, 229, 229);
+        padding: 0.5rem;
+        border-radius: 1rem;
+        margin-right: 1rem;
+        color:black;
+        font-size: 1rem;
+        margin-top: 6px;
+         width: 380px;
+    }
+    
+    #new-task-input-dept,#new-task-input-select-desg,#new-task-input-select-dept,#new-task-input-desg::placeholder {
+        color: var(--grey);
+    }
+    
+   #new-task-submit-desg {
+        color:#516377;
+        background-color:rgb(229, 229, 229);
+        padding: 0.5rem;
+        border-radius: 1rem;
+        border-color:rgb(32, 31, 31);
+        font-size: 1.25rem; 
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.4s;
+        margin-top:3%;
+    }
+    #new-task-submit-dept {
+        color:#516377;
+        background-color:rgb(229, 229, 229);
+        padding: 0.5rem;
+        border-radius: 1rem;
+        border-color:rgb(32, 31, 31);
+        font-size: 1.25rem; 
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.4s;
+        margin-top:3%;
+    }
+    
+    #new-task-submit-dept:hover {
+        opacity: 0.8;
+    }
+    
+    #new-task-submit-dept:active {
+    
+        opacity: 0.6;
+    }
+   #new-task-submit-desg:hover {
+        opacity: 0.8;
+    }
+    
+    #new-task-submit-desg:active {
+    
+        opacity: 0.6;
+    }
+    
+    main {
+        flex: 1 1 0%;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    
+    .task-list {
+        padding: 1rem;
+        background-color:rgb(229, 229, 229);
+        margin-bottom: 10%;
+        border-radius: 20px;
+    }
+    
+    .task-list h2 {
+        font-size: 1.5rem;
+        font-weight: 300;
+        color: var(--grey);
+        margin-bottom: 1rem;
+    }
+    
+    #tasks-dept .task {
+        display: flex;
+        justify-content: space-between;
+        background-color: white;
+        color: #111827;
+        padding: 0.5rem;
+        border-radius: 1rem;
+        margin-bottom: 1rem;
+    }
+    #tasks-desg .task {
+        display: flex;
+        justify-content: space-between;
+        background-color: white;
+        color: #111827;
+        padding: 0.5rem;
+        border-radius: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .task .content {
+        flex: 1 1 0%;
+    }
+    
+    .task .content .text {
+        color: black;
+        font-size: 1rem;
+        width: 100%;
+        display: block;
+        transition: 0.4s;
+    }
+    
+    .task .content .text:not(:read-only) {
+        color: var(--pink);
+    }
+    
+    .task .actions {
+        display: flex;
+        margin: 0 -0.5rem;
+    }
+    
+    .task .actions button {
+        cursor: pointer;
+        margin: 0 0.5rem;
+        font-size: 1rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        transition: 0.4s;
+    }
+    
+    .task .actions button:hover {
+        opacity: 0.8;
+    }
+    
+    .task .actions button:active {
+        opacity: 0.6;
+    }
+    
+    
+    
+    .task .actions .delete {
+        color: crimson;
+    }
+    .card{
+       
+        width: 1000px;
+        left:-73%;
+        margin-left:-27%;
+    } 
+    .column {
+    float: left;
+    width: 50%;
+    padding: 100px;
+    text-align: center;
+    font-size: 25px;
+    cursor: pointer;
+    color: white;
+    }
+    
+    .form-control{
+        border-radius: 1rem;
+        margin-right: 10px;
+    }
+    /* Clear floats after the columns */
+    .row:after {
+    content: "";
+    display: table;
+    clear: both;
+    }
+
+    #dept-desg-list{
+        display: contents;
+    }
+    #department-designation{
+        display: flex;
+    }
+
+    .btn-primary{
+        margin-left: 47%;
+    }
+    .row{
+        display: flex;
+        flex-wrap: inherit;
+    }
+    
+</style>
+
+{% endblock %}
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+      <div class="authentication-inner py-4">
+        <!-- College Admin Registration -->
+        <div class="card">
+          <div class="card-body">
+            <!-- Logo -->
+            <div class="app-brand justify-content-center">
+              <a href="index.html" class="app-brand-link gap-2">
+                <span class="app-brand-text demo h3 mb-0 fw-bold">University Registration</p></span>
+              </a>
+            </div>
+            <!-- /Logo -->
+           
+           
+        <form id="new-task-form" method="POST" action="{% url 'college-registration:college-dept-desg' %}">
+            {% csrf_token %}
+            <div class="text-center" style="color:red;">
+                 Please Don't go back(Priveous Page)!
+            </div>
+            <div id="department-designation">
+                <div id="dept-desg-list" class="row" style="margin-top: -3%;">
+                    <div id="department" class="column" style="border: #111827; border-radius: 20px;">
+                        <header>
+                            <h3>Department</h3>
+                            
+                                <select 
+                                    name="task" id="new-task-input-dept-select"  class="form-control" autofocus>
+                                        <option value="" hidden default>Select Department</option>
+                                        {% for dept in dept_list %}
+                                            <option value="{{dept.department_name }}" id="{{dept.department_name }}">{{dept.department_name}}</option>
+                                        {% endfor %}
+                                        <option value="dept_other" id="dept_other">other</option>
+                                </select>
+                                <div id="show_hide_dept" style="display: none;" >
+                                    <input 
+                                    type="text"
+                                    name="new-task-input" 
+                                    id="new-task-input-dept" 
+                                    placeholder="Enter the Your Department" autofocus />
+                                </div>
+                                <div id="dept_error_mess">
+                                </div>
+                                <input 
+                                    type="submit"
+                                    id="new-task-submit-dept" 
+                                    value="ADD" />
+                        </header>
+                        <main>
+                            <section class="task-list">
+                                <h6>Department List</h6>
+                    
+                                <div id="tasks-dept">
+                    
+                                    
+                    
+                                </div>
+                            </section>
+                        </main>
+                    </div>
+    
+    
+                    <div id="designation" class="column" style="border: #111827; border-radius: 20px;">
+                        <header>
+                            <h3>Designation</h3>
+                                <select 
+                            
+                                    name="new-task-input-select-desg" id="new-task-input-desg-select"  class="form-control" autofocus>
+                                    <option value="" hidden default>Select Designation</option>
+                                    {% for desg in desg_list %}
+                                        <option value="{{desg.designation}}" id="{{desg.designation}}">{{desg.designation}}</option>
+                                    {% endfor %}
+                                    <option value="desg_other" id="desg_other">other</option>
+                                </select>
+                                <div id="show_hide_desg" style="display: none;" >
+                                    <input 
+                                    type="text" 
+                                    name="new-task-input" 
+                                    id="new-task-input-desg" 
+                                    placeholder="Enter the your Designation" autofocus/>
+                                </div>
+                                <div id="desg_error_mess">
+                                </div>
+                                    <input 
+                                        type="button"
+                                        id="new-task-submit-desg" 
+                                        value="ADD" />
+                            
+                        </header>
+                        <main>
+                            <section class="task-list">
+                                <h6>Designation List</h6>
+                    
+                                <div id="tasks-desg">
+                    
+                                    
+                    
+                                </div>
+                            </section>
+                        </main>
+                    </div>
+                </div>
+              
+            </div>
+            <button class="btn btn-primary" id="create-btn">Save</button>
+        </form>
+            
+         
+        </div>
+      </div>
+    </div>
+</div>
+  
+    
+{% endblock %}
+
+
+{% block extra_js %}
+    <script>
+        window.addEventListener('load', () => {
+            var input = document.querySelector("#new-task-input-dept-select");
+            const list_el = document.querySelector("#tasks-dept");
+            var dept_form=document.getElementById("new-task-submit-dept");
+
+            input.addEventListener('change', (e) => {
+                $("#dept_error_mess").empty();
+                console.log("hlo");
+                if(input.value  == 'dept_other'){
+                    console.log("if dept");
+                    document.getElementById("show_hide_dept").style.display="block";
+                    input = document.querySelector("#new-task-input-dept");
+                    $("#new-task-input-dept").attr("data-para", "dept_other")
+                }else{
+                    document.getElementById("show_hide_dept").style.display="none";
+                    input = document.querySelector("#new-task-input-dept-select");
+                    $("#new-task-input-dept").attr("data-para", "")
+                }
+                })
+        
+            
+            dept_form.addEventListener('click', function(e) {
+                e.preventDefault();
+                const task = input.value;
+                $("#dept_error_mess").empty();
+                console.log(task, "---task")
+                if(task == ""){
+                    if($("#new-task-input-dept").data("para") == "dept_other")
+                    {
+                        $("#dept_error_mess").append(`<p style="color:red; font-size:14px;">Please enter value</p>`)
+                    }else{
+                        $("#dept_error_mess").append(`<p style="color:red; font-size:14px;">Please select any option</p>`)
+                    }
+
+                }else{
+                    const task_el = document.createElement('div');
+                    task_el.classList.add('task');
+            
+                    const task_content_el = document.createElement('div');
+                    task_content_el.classList.add('content');
+            
+                    task_el.appendChild(task_content_el);
+            
+                    const task_input_el = document.createElement('input');
+                    task_input_el.classList.add('text');
+                    task_input_el.type = 'text';
+                    task_input_el.setAttribute("name","department_list");
+                    task_input_el.value = task;
+                    task_input_el.setAttribute('readonly', 'readonly');
+            
+                    task_content_el.appendChild(task_input_el);
+            
+                    const task_actions_el = document.createElement('div');
+                    task_actions_el.classList.add('actions');
+                    
+            
+                    const task_delete_el = document.createElement('button');
+                    task_delete_el.classList.add('delete');
+                    task_delete_el.innerText = 'Delete';
+            
+                    task_actions_el.appendChild(task_delete_el);
+            
+                    task_el.appendChild(task_actions_el);
+            
+                    list_el.appendChild(task_el);
+
+                    input.value = '';
+                    
+                    task_delete_el.addEventListener('click', (e) => {
+                        list_el.removeChild(task_el);
+                    });
+                }
+            });
+        });
+        window.addEventListener('load', () => {
+            var input = document.querySelector("#new-task-input-desg-select");
+            const list_el = document.querySelector("#tasks-desg");
+            var desg_form=document.getElementById("new-task-submit-desg");
+
+            input.addEventListener('change', (e) => {
+                $("#desg_error_mess").empty();
+                console.log("hlo");
+                if(input.value=='desg_other'){
+                    console.log("if desg");
+                    document.getElementById("show_hide_desg").style.display="block";
+                    input = document.querySelector("#new-task-input-desg");
+                    $("#new-task-input-desg").attr("data-para", "desg_other")
+                }else{
+                    document.getElementById("show_hide_desg").style.display="none";
+                    input = document.querySelector("#new-task-input-desg-select");
+                    $("#new-task-input-desg").attr("data-para", "")
+                }
+            })
+          
+            desg_form.addEventListener('click', (e) => {
+                e.preventDefault();
+                const task = input.value;
+                $("#desg_error_mess").empty();
+                console.log(task, "---task")
+                if(task == ""){
+                    if($("#new-task-input-desg").data("para") == "desg_other")
+                    {
+                        $("#desg_error_mess").append(`<p style="color:red; font-size:14px;">Please enter value</p>`)
+                    }else{
+                        $("#desg_error_mess").append(`<p style="color:red; font-size:14px;">Please select any option</p>`)
+                    }
+
+                }else{
+                    const task_el = document.createElement('div');
+                    task_el.classList.add('task');
+            
+                    const task_content_el = document.createElement('div');
+                    task_content_el.classList.add('content');
+            
+                    task_el.appendChild(task_content_el);
+            
+                    const task_input_el = document.createElement('input');
+                    task_input_el.classList.add('text');
+                    
+                    task_input_el.type = 'text';
+                    task_input_el.setAttribute("name","designation_list");
+                    task_input_el.value = task;
+                    task_input_el.setAttribute('readonly', 'readonly');
+            
+                    task_content_el.appendChild(task_input_el);
+            
+                    const task_actions_el = document.createElement('div');
+                    task_actions_el.classList.add('actions');
+                    
+            
+                    const task_delete_el = document.createElement('button');
+                    task_delete_el.classList.add('delete');
+                    task_delete_el.innerText = 'Delete';
+            
+                    task_actions_el.appendChild(task_delete_el);
+            
+                    task_el.appendChild(task_actions_el);
+            
+                    list_el.appendChild(task_el);
+            
+                    input.value = '';
+            
+                    
+                    task_delete_el.addEventListener('click', (e) => {
+                        list_el.removeChild(task_el);
+
+                    });
+                }
+            });
+        });
+    </script>
+{% endblock %}
+

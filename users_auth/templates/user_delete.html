@@ -1,0 +1,20 @@
+
+<!-- content -->
+<div class="modal-content">
+    <form class="mb-3" id="delete_user_form_id" action="" method="POST">
+      {% csrf_token %}
+      <div class="modal-header justify-content-center">
+        <h4 id="exampleModalToggleLabel" class="offcanvas-title">Delete User</h4>
+      </div>
+
+      <div class="modal-body text-center delete-user-modal">
+        <p>Are you sure you want to delete the user <b><span id="delete-user-name-role"></span></b> ?</p>
+      </div>
+
+      <div class="modal-footer">
+        <input type="submit" class="btn btn-primary" value="Delete User" id="delete-user_btn_id">
+        <a class="btn btn-primary" data-bs-dismiss="modal" href="{% url 'users_auth:user-list' %}" id="cancel_id">Cancel </a>
+      </div>
+    </form>
+</div>
+
