@@ -12,18 +12,13 @@ set -o errexit  # exit on error
 #!/bin/bash
 
 # Open first terminal and run commands
-gnome-terminal --tab --title="Terminal 1" --command="bash -c 'echo Running commands in Terminal 1...; \
-python -m pip install --upgrade pip; \
-pip install -r requirements.txt; \
-python manage.py migrate; \
-exec bash'"
+#!/bin/bash
 
-# Open second terminal and run command
-gnome-terminal --tab --title="Terminal 2" --command="bash -c 'echo Running commands in Terminal 2...; \
-celery -A TrackYourAlumni.celery worker --pool=threads -l INFO; \
-exec bash'"
+# Terminal 1
+screen -dmS terminal1 bash -c "pip install --upgrade pip; pip install -r requirements.txt; python manage.py migrate"
 
-# Open third terminal and run command
-gnome-terminal --tab --title="Terminal 3" --command="bash -c 'echo Running commands in Terminal 3...; \
-celery -A TrackYourAlumni beat -l INFO; \
-exec bash'"
+# Terminal 2
+screen -dmS terminal2 bash -c "celery -A TrackYourAlumni.celery worker --pool=threads -l INFO"
+
+# Terminal 3
+screen -dmS terminal3 bash -c "celery -A TrackYourAlumni beat -l INFO"
