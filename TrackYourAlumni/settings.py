@@ -28,7 +28,7 @@ load_dotenv(BASE_DIR/'.env')
 SECRET_KEY = "django-insecure-r!*(l2jjn%0*ns!b)faqy-4cfrs_)yh2g-4$%9(zwn1+x*6!#z"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 AUTH_USER_MODEL = 'users_auth.CustomUser'
@@ -46,8 +46,6 @@ INSTALLED_APPS = [
     "departments",
     "users_auth",
     "roles_permissions",
-    "request_inbox",
-    "UrlStored",
     "corsheaders",
     "registration",
     "dashboard",
@@ -57,7 +55,6 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'celery_progress',
     "chartjs",
-    # "djcelery",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -231,3 +228,14 @@ PASSWORD2=os.getenv("PASSWORD2")
 
 USER_NAME3=os.getenv("USER_NAME3")
 PASSWORD3=os.getenv("PASSWORD3")
+
+# import dj_database_url 
+# Database
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+# DATABASE_URL = os.getenv("DATABASE_URL")
+
+# if DATABASE_URL :
+#     DATABASES = {
+#     "default":dj_database_url.config(DATABASE_URL),
+#     # "default":dj_database_url.parse(DATABASE_URL, conn_max_age=600),
+# }
