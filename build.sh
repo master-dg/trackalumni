@@ -13,6 +13,8 @@ set -o errexit  # exit on error
 
 # Open first terminal and run commands
 #!/bin/bash
+apt-get update
+apt-get install -y screen
 
 # Terminal 1
 screen -dmS terminal1 bash -c "pip install --upgrade pip; pip install -r requirements.txt; python manage.py migrate"
