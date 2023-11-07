@@ -1,18 +1,18 @@
-#!/usr/bin/env bash
+!/usr/bin/env bash
 
 set -o errexit  # exit on error
 
-# python -m pip install --upgrade pip
-# pip install -r requirements.txt
-# python manage.py migrate  
-# celery -A TrackYourAlumni.celery worker --pool=threads -l INFO
-# celery -A TrackYourAlumni beat -l INFO
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python manage.py migrate  
+celery -A TrackYourAlumni.celery worker --pool=threads -l INFO
+celery -A TrackYourAlumni beat -l INFO
 
 
-#!/bin/bash
+!/bin/bash
 
 # Open first terminal and run commands
-#!/bin/bash
+!/bin/bash
 apt-get update
 apt-get install -y screen
 
